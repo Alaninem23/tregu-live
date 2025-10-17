@@ -5,10 +5,14 @@ import time
 import threading
 import sys
 import os
+import pytest
 sys.path.insert(0, os.path.dirname(__file__))
 
 from app.main import app
 import uvicorn
+
+# Skip these tests unless explicitly opted-in; they require a live server running on 127.0.0.1:8008
+pytestmark = pytest.mark.skipif(os.getenv("LIVE_SERVER_TESTS") != "1", reason="Skip live-server tests unless LIVE_SERVER_TESTS=1")
 
 base_url = "http://127.0.0.1:8008"
 
