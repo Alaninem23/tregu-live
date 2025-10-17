@@ -4,16 +4,16 @@
  */
 
 export function getApiBaseUrl(): string {
-  // For SSR and API routes, Next exposes NEXT_PUBLIC_* at runtime
-  const fromGlobal = (globalThis as any)?.NEXT_PUBLIC_API_URL as string | undefined;
-  if (typeof fromGlobal === 'string' && fromGlobal.length > 0) return fromGlobal;
-  // Fallback to window env if present
+  // Prefer BASE, fall back to legacy URL for compatibility
+  const g: any = (globalThis as any) || {};
+  const base = g.NEXT_PUBLIC_API_BASE as string | undefined;
+  const url = g.NEXT_PUBLIC_API_URL as string | undefined;
+  if (base && base.length > 0) return base;
+  if (url && url.length > 0) return url;
   if (typeof window !== 'undefined') {
-    const w = window as any;
-    if (typeof w.NEXT_PUBLIC_API_URL === 'string' && w.NEXT_PUBLIC_API_URL.length > 0) {
-      return w.NEXT_PUBLIC_API_URL as string;
-    }
+    const w: any = window as any;
+    if (typeof w.NEXT_PUBLIC_API_BASE === 'string' && w.NEXT_PUBLIC_API_BASE.length > 0) return w.NEXT_PUBLIC_API_BASE;
+    if (typeof w.NEXT_PUBLIC_API_URL === 'string' && w.NEXT_PUBLIC_API_URL.length > 0) return w.NEXT_PUBLIC_API_URL;
   }
-  // Final fallback for local dev
-  return 'http://127.0.0.1:8010';
+  return 'http://127.0.0.1:8010/api';
 }

@@ -1,23 +1,11 @@
 ﻿services:
   - type: web
     name: tregu-api
-    env: python
-    plan: standard
-    region: oregon
-    buildCommand: |
-      cd backend
-      pip install -r requirements.txt
-      echo "BUILD OK"
-    startCommand: |
-      cd backend
-      bash ./start.sh
-    autoDeploy: true
+    runtime: python
+    buildCommand: cd tregu_backend && pip install -r requirements.txt
+    startCommand: cd tregu_backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
-      - key: APP_ENV
-        value: production
-      - key: PORT
-        value: 10000
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
@@ -42,40 +30,10 @@
         value: https://www.tregu.com,https://tregu.onrender.com
       - key: RATE_LIMIT_GLOBAL
         value: 200/min
-      - key: AI_LOG_RETENTION_DAYS
-        value: 30
 
-  - type: static_site
+  - type: web
     name: tregu-frontend
-    env: static
-    buildCommand: |
-      cd frontend
-      npm ci
-      npm run build
-      npm run export || echo "If using SSR, deploy as a Node web service instead."
-    staticPublishPath: frontend/out
-    pullRequestPreviewsEnabled: true
-    envVars:
-      - key: NEXT_PUBLIC_API_BASE
-        sync: false
-      - key: NEXT_PUBLIC_CDN_BASE
-        sync: false
+    runtime: static
+    buildCommand: cd tregu_frontend && npm ci && npm run build && npm run export
+    staticPublishPath: tregu_frontend/out
 
-  - type: worker
-    name: tregu-worker
-    env: python
-    plan: starter
-    autoDeploy: true
-    buildCommand: |
-      cd backend
-      pip install -r requirements.txt
-    startCommand: |
-      cd backend
-      python -m app.worker
-    envVars:
-      - key: APP_ENV
-        value: production
-      - key: DATABASE_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false

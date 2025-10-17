@@ -6,7 +6,7 @@ from typing import Optional
 from fastapi import HTTPException, status, Depends, Header
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from .config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
+from .config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, JWT_ALG
 from .db import SessionLocal
 from . import models
 
@@ -38,11 +38,11 @@ def create_access_token(sub: str) -> str:
     to_encode = {"sub": sub, "iat": datetime.now(timezone.utc)}
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    return pyjwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
+    return pyjwt.encode(to_encode, SECRET_KEY, algorithm=JWT_ALG)
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> models.User:
     try:
-        payload = pyjwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        payload = pyjwt.decode(token, SECRET_KEY, algorithms=[JWT_ALG])
         user_id_str = payload.get("sub")
         user_id = uuid.UUID(user_id_str)  # Convert string to UUID
     except Exception:
@@ -62,7 +62,7 @@ def get_current_user_optional(authorization: Optional[str] = Header(None), db: S
     token = authorization.replace("Bearer ", "")
 
     try:
-        payload = pyjwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        payload = pyjwt.decode(token, SECRET_KEY, algorithms=[JWT_ALG])
         user_id_str = payload.get("sub")
         user_id = uuid.UUID(user_id_str)  # Convert string to UUID
     except Exception:

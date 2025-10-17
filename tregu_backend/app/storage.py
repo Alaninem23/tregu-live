@@ -2,7 +2,7 @@ import os, uuid, io
 from typing import Tuple
 from PIL import Image
 
-S3_ENABLED = bool(os.getenv("S3_ENDPOINT") or os.getenv("AWS_S3_BUCKET"))
+S3_ENABLED = bool(os.getenv("S3_ENDPOINT") or os.getenv("S3_BUCKET") or os.getenv("AWS_S3_BUCKET"))
 
 
 def _resize(img: Image.Image, max_w: int, max_h: int) -> Image.Image:
@@ -30,7 +30,7 @@ def put_object_local(base_dir: str, key: str, data: bytes) -> str:
 def put_avatar_bytes(user_id: str, raw: bytes, mime: str):
     full, med, th = make_renditions(raw, mime)
     keybase = f"avatars/{user_id}/{uuid.uuid4().hex}"
-    bucket = os.getenv("AWS_S3_BUCKET")
+    bucket = os.getenv("S3_BUCKET") or os.getenv("AWS_S3_BUCKET")
     if S3_ENABLED:
         import importlib
         try:
@@ -40,9 +40,9 @@ def put_avatar_bytes(user_id: str, raw: bytes, mime: str):
         s3 = boto3.client(
             "s3",
             endpoint_url=os.getenv("S3_ENDPOINT") or None,
-            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-            region_name=os.getenv("AWS_REGION") or "us-east-1",
+            aws_access_key_id=os.getenv("S3_ACCESS_KEY_ID") or os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY") or os.getenv("AWS_SECRET_ACCESS_KEY"),
+            region_name=os.getenv("S3_REGION") or os.getenv("AWS_REGION") or "us-east-1",
         )
         k_full = f"{keybase}_full.webp"
         k_med  = f"{keybase}_med.webp"
@@ -50,7 +50,15 @@ def put_avatar_bytes(user_id: str, raw: bytes, mime: str):
         s3.put_object(Bucket=bucket, Key=k_full, Body=full, ContentType="image/webp", ACL="public-read")
         s3.put_object(Bucket=bucket, Key=k_med,  Body=med,  ContentType="image/webp", ACL="public-read")
         s3.put_object(Bucket=bucket, Key=k_th,   Body=th,   ContentType="image/webp", ACL="public-read")
-        base = os.getenv("S3_PUBLIC_BASE") or f"https://{bucket}.s3.amazonaws.com"
+        base = os.getenv("PUBLIC_CDN_BASE") or os.getenv("S3_PUBLIC_BASE")
+        if not base:
+            # derive a reasonable default from endpoint + bucket
+            ep = os.getenv("S3_ENDPOINT") or ""
+            if ep:
+                ep = ep.rstrip("/")
+                base = f"{ep}/{bucket}"
+            else:
+                base = f"https://{bucket}.s3.amazonaws.com"
         return (k_full, f"{base}/{k_full}", f"{base}/{k_med}", f"{base}/{k_th}", len(raw))
     else:
         media_root = os.getenv("MEDIA_ROOT", "var/media")

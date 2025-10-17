@@ -23,7 +23,9 @@ const TOKEN_KEY = "tregu:token";
 const PROFILE_KEY = "tregu:profile"; // used for devemail:* tokens
 
 async function apiFetch<T=any>(path: string, opts: { method?: string; body?: any; token?: string } = {}) {
-  const base = process.env.NEXT_PUBLIC_API_URL || "";
+  // Prefer standardized helper; env mapping in next.config keeps legacy compat
+  const { getApiBaseUrl } = await import("../../lib/config");
+  const base = getApiBaseUrl();
   const headers: Record<string,string> = {};
   if (opts.body !== undefined) headers["Content-Type"] = "application/json";
   const tok = typeof window !== "undefined"

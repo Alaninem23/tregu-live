@@ -781,6 +781,9 @@ video {
 .h-20{
   height: 5rem;
 }
+.h-24{
+  height: 6rem;
+}
 .h-28{
   height: 7rem;
 }
@@ -9141,6 +9144,10 @@ video {
 .bg-gray-600{
   --tw-bg-opacity: 1;
   background-color: rgb(75 85 99 / var(--tw-bg-opacity));
+}
+.bg-gray-700{
+  --tw-bg-opacity: 1;
+  background-color: rgb(55 65 81 / var(--tw-bg-opacity));
 }
 .bg-green-100{
   --tw-bg-opacity: 1;
@@ -25892,6 +25899,10 @@ html, body{
 .hover\:bg-gray-500:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(107 114 128 / var(--tw-bg-opacity));
+}
+.hover\:bg-gray-600:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(75 85 99 / var(--tw-bg-opacity));
 }
 .hover\:bg-green-500:hover{
   --tw-bg-opacity: 1;

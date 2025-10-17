@@ -1,12 +1,13 @@
 ﻿# Node / Next.js
 **/node_modules/
 **/.next/
+**/.next_dev/
 **/out/
 **/dist/
 **/.turbo/
 **/coverage/
 
-# Python / FastAPI
+# Python
 **/__pycache__/
 **/.venv/
 **/venv/
