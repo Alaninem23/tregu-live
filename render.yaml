@@ -36,4 +36,7 @@
     runtime: static
     buildCommand: cd tregu_frontend && npm ci && npm run build && npm run export
     staticPublishPath: tregu_frontend/out
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE
+        sync: false
 
