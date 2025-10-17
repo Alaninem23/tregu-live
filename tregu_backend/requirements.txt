@@ -1,0 +1,32 @@
+fastapi==0.115.0
+uvicorn==0.37.0
+sqlalchemy==2.0.31
+alembic==1.13.1
+pydantic==2.9.2
+pydantic-core==2.23.4
+passlib[bcrypt]==1.7.4
+python-jose[pycryptodome]==3.3.0
+PyJWT==2.10.1
+python-multipart==0.0.9
+email-validator==2.2.0
+# Optional Postgres driver (skip on Windows or Python 3.13 where wheels may be unavailable)
+psycopg2-binary==2.9.9; sys_platform != "win32" and python_version < "3.13"
+aioredis==2.0.1
+redis==5.0.8
+pyotp==2.9.0
+qrcode==7.4.2
+# Pillow 11+ provides wheels for Python 3.13 on Windows; use 10.3.0 for older versions
+pillow>=11.0.0; python_version >= "3.13"
+pillow==10.3.0; python_version < "3.13"
+requests==2.32.3
+# pyh3 currently has limited wheels on Windows; using h3-py instead
+h3==4.1.1; sys_platform != "win32" and python_version < "3.13"
+shapely==2.0.4; sys_platform != "win32" and python_version < "3.13"
+pycountry==23.12.11
+pytz==2024.1
+pandas==2.2.2; sys_platform != "win32" and python_version < "3.13"
+python-dotenv==1.0.1
+PyYAML==6.0.2
+pytest==8.3.2
+boto3==1.35.40
+starlette==0.38.6

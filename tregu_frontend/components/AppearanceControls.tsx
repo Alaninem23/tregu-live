@@ -1,0 +1,27 @@
+﻿'use client'
+import { useEffect, useState } from 'react'
+import { applyTheme, loadTheme, saveTheme, type Density } from '../lib/theme'
+
+export default function AppearanceControls(){
+  const [color, setColor] = useState('#2563eb')
+  const [density, setDensity] = useState<Density>('comfortable')
+  useEffect(()=>{ const t = loadTheme(); setColor(t.color); setDensity(t.density); applyTheme(t.color, t.density) },[])
+  function commit(c=color, d=density){ saveTheme(c,d); applyTheme(c,d) }
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="text-sm font-medium">Brand color</label>
+        <input type="color" value={color} onChange={e=>{ setColor(e.target.value); commit(e.target.value, density) }} className="ml-3"/>
+      </div>
+      <div>
+        <label className="text-sm font-medium">Density</label>
+        <select value={density} onChange={e=>{ const v=e.target.value as Density; setDensity(v); commit(color, v) }} className="ml-3 rounded-xl border px-2 py-1">
+          <option value="compact">Compact</option>
+          <option value="cozy">Cozy</option>
+          <option value="comfortable">Comfortable</option>
+        </select>
+      </div>
+      <p className="text-sm text-slate-600">These settings personalize only your view. Pro plans can define workspace‑wide defaults.</p>
+    </div>
+  )
+}

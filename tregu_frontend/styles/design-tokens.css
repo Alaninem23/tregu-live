@@ -1,0 +1,55 @@
+:root {
+  /* Brand (example values—swap to your logo-derived hex) */
+  --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-200:#c7d2fe; --brand-300:#a5b4fc;
+  --brand-400:#818cf8; --brand-500:#6366f1; --brand-600:#4f46e5; --brand-700:#4338ca;
+  --brand-800:#3730a3; --brand-900:#312e81;
+
+  --accent-50:#fdf2f8; --accent-100:#fce7f3; --accent-200:#fbcfe8; --accent-300:#f9a8d4;
+  --accent-400:#f472b6; --accent-500:#ec4899; --accent-600:#db2777; --accent-700:#be185d;
+  --accent-800:#9d174d; --accent-900:#831843;
+
+  --neutral-50:#f8fafc; --neutral-100:#f1f5f9; --neutral-200:#e2e8f0; --neutral-300:#cbd5e1;
+  --neutral-400:#94a3b8; --neutral-500:#64748b; --neutral-600:#475569; --neutral-700:#334155;
+  --neutral-800:#1f2937; --neutral-900:#0f172a;
+
+  /* Semantic roles */
+  --color-bg: var(--neutral-50);
+  --color-surface: #ffffff;
+  --color-border: var(--neutral-200);
+  --color-text: var(--neutral-800);
+  --color-muted: var(--neutral-500);
+
+  --color-primary: var(--brand-600);
+  --color-primary-contrast: #ffffff;
+  --color-primary-hover: var(--brand-700);
+
+  --color-accent: var(--accent-600);
+  --color-accent-hover: var(--accent-700);
+
+  --color-success: #10b981;   /* emerald-500 */
+  --color-warning: #f59e0b;   /* amber-500 */
+  --color-danger:  #ef4444;   /* red-500 */
+
+  /* Elevation */
+  --shadow-1: 0 1px 3px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.06);
+  --shadow-2: 0 6px 16px rgba(15,23,42,.08), 0 3px 6px rgba(15,23,42,.06);
+
+  /* Radius & spacing */
+  --radius-lg: 1rem;          /* 16px */
+  --radius-xl: 1.25rem;       /* 20px */
+  --radius-2xl: 1.5rem;       /* 24px */
+  --space: 1rem;              /* base spacing unit */
+}
+
+/* Dark mode */
+:root[data-appearance="dark"]{
+  --color-bg: #0b1220;
+  --color-surface: #0f172a;
+  --color-border: #1f2a44;
+  --color-text: #e5e7eb;
+  --color-muted: #94a3b8;
+
+  --color-primary: var(--brand-400);
+  --color-primary-hover: var(--brand-500);
+  --shadow-1:none; --shadow-2:none; /* dark uses subtler shadows */
+}

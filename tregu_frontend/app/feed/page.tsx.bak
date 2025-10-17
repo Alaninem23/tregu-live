@@ -1,0 +1,66 @@
+"use client"
+import { useEffect, useState } from "react"
+import { useAuth } from "../providers/AuthProvider"
+
+type CatalogItem = { id:string; business:string; logo?:string; title:string; price?:string; image?:string }
+
+export default function Feed(){
+  const { signOut, user } = useAuth();
+  const [items,setItems] = useState<CatalogItem[]>([])
+  const [name,setName] = useState<string>("")
+  const [avatar,setAvatar] = useState<string | null>(null)
+
+  if (!user) return <div className="container py-10">You are signed out.</div>;
+
+  useEffect(()=>{
+    setName(localStorage.getItem("tregu:name") || "New Tregu user")
+    setAvatar(localStorage.getItem("tregu:avatar"))
+    fetch("/api/catalog/public").then(r=>r.json()).then(d=> setItems(d.items||[])).catch(()=>{})
+  },[])
+
+  function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>){
+    const f = e.target.files?.[0]; if(!f) return;
+    const reader = new FileReader(); reader.onload = ()=>{ const url = String(reader.result); localStorage.setItem("tregu:avatar", url); setAvatar(url) }; reader.readAsDataURL(f)
+  }
+
+  return (
+    <main className="mx-auto max-w-5xl p-6 space-y-6">
+      <header className="flex items-center gap-4">
+        <div className="ml-auto">
+          <a href="/settings/account" className="rounded-lg border px-3 py-1 text-sm hover:bg-white">Edit account</a>
+        </div>
+        <div className="relative h-16 w-16 overflow-hidden rounded-full ring-2 ring-[var(--brand,#2563eb)] bg-slate-100">
+          {avatar ? <img src={avatar} alt="avatar" className="h-full w-full object-cover" /> : null}
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold">Welcome, {name}</h1>
+          <label className="mt-1 inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-1 text-sm hover:bg-white">
+            <input type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
+            <span>Upload profile picture</span>
+          </label>
+        </div>
+        <div className="ml-auto">
+          <button onClick={signOut} className="btn">Sign out</button>
+        </div>
+      </header>
+
+      <section>
+        <h2 className="mb-3 text-lg font-semibold">Latest from businesses</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          {items.map(it=> (
+            <article key={it.id} className="rounded-2xl border bg-white/70 p-4 shadow-sm">
+              <div className="flex items-center gap-2">
+                {it.logo ? <img src={it.logo} alt="" className="h-6 w-6 rounded" /> : <div className="h-6 w-6 rounded bg-slate-200" />}
+                <span className="text-sm text-slate-600">{it.business}</span>
+              </div>
+              {it.image ? <img src={it.image} alt="" className="mt-3 h-32 w-full rounded-lg object-cover" /> : null}
+              <div className="mt-3 font-medium">{it.title}</div>
+              {it.price ? <div className="text-sm text-slate-600">{it.price}</div> : null}
+            </article>
+          ))}
+          {items.length===0 ? <div className="col-span-3 rounded-xl border p-6 text-slate-600">No public catalogs yet-connect businesses or upload catalogs to see a feed here.</div> : null}
+        </div>
+      </section>
+    </main>
+  )
+}

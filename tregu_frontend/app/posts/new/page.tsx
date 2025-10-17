@@ -1,0 +1,23 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { getRole, isOnboarded } from '../../components/useAuth';
+
+export default function NewPostPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isOnboarded()) { router.replace('/join'); return; }
+    if (getRole() !== 'buyer') { router.replace('/dashboard'); }
+  }, [router]);
+
+  return (
+    <div className="container py-8 space-y-4">
+      <h1 className="text-2xl font-semibold">Create Post (Buyer)</h1>
+      <p className="text-slate-600">Post creation form coming soon.</p>
+      <a className="btn" href="/dashboard">Back to Dashboard</a>
+    </div>
+  );
+}
+

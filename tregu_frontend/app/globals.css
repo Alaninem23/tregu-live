@@ -1,0 +1,33 @@
+/* Brand colors */
+:root {
+  --tregu-brand: #2563eb; /* Tailwind blue-600 */
+  --tregu-orange: #ff6600; /* For initials avatar only */
+}
+
+.text-brand {
+  color: var(--tregu-brand);
+}
+
+/* Print styles for Tregu Enterprise icons */
+@media print {
+  /* Force icons to render in crisp black for printed documents/labels */
+  svg {
+    color: #000 !important;
+    stroke: #000 !important;
+  }
+  
+  /* Remove shadows and unnecessary effects for print */
+  .shadow-sm,
+  .shadow,
+  .shadow-md,
+  .shadow-lg {
+    box-shadow: none !important;
+  }
+  
+  /* Ensure backgrounds don't wash out icons */
+  .bg-gray-50,
+  .bg-blue-50,
+  .hover\:bg-blue-50 {
+    background-color: transparent !important;
+  }
+}

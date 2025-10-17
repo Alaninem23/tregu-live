@@ -1,0 +1,116 @@
+{
+  "REGISTRY": "ghcr.io/alaninem/tregu",
+
+  "VERSION_BLUE": {
+    "API": "1.0.0",
+    "WEB": "1.0.0",
+    "STATUS": "STABLE - Current Production",
+    "DEPLOYED": "2025-10-01"
+  },
+
+  "VERSION_GREEN": {
+    "API": "1.0.1",
+    "WEB": "1.0.1",
+    "STATUS": "NEXT - Ready for deployment",
+    "DEPLOYED": null
+  },
+
+  "DOMAINS": {
+    "PRODUCTION": {
+      "APP": "tregu.com",
+      "APP_WWW": "www.tregu.com",
+      "API": "api.tregu.com"
+    },
+    "STAGING": {
+      "APP": "staging.tregu.com",
+      "API": "staging-api.tregu.com"
+    }
+  },
+
+  "INFRASTRUCTURE": {
+    "DATABASE_HOST": "10.0.0.20",
+    "DATABASE_PORT": 5432,
+    "REDIS_HOST": "10.0.0.21",
+    "REDIS_PORT": 6379
+  },
+
+  "PRODUCTION": {
+    "DATABASE": {
+      "NAME": "tregu_prod",
+      "USER": "tregu_prod_user",
+      "PASSWORD": "pjL2rQ4sV9wD1nB7yG5kT3xM8fC0hR6a"
+    },
+    "REDIS": {
+      "DB": 2
+    },
+    "SECRETS": {
+      "SECRET_KEY": "9c7f2b1e04d54c2fae1dbf9b0a6b3f0c4e8a1d2c6f7a9b8e3d5c7f9a1b3c5d7",
+      "JWT_ISSUER": "https://api.tregu.com",
+      "JWT_AUDIENCE": "tregu"
+    },
+    "CSRF_ORIGINS": [
+      "https://tregu.com",
+      "https://www.tregu.com"
+    ],
+    "FEATURE_FLAGS": {
+      "allow_personal_to_comment": true,
+      "market_checkout_v2": false,
+      "enable_enterprise_modules": false
+    }
+  },
+
+  "STAGING": {
+    "DATABASE": {
+      "NAME": "tregu_staging",
+      "USER": "tregu_staging_user",
+      "PASSWORD": "Q8nT5zA1kL7wR3mG9pD2xF6cH0vJ4sY8"
+    },
+    "REDIS": {
+      "DB": 3
+    },
+    "SECRETS": {
+      "SECRET_KEY": "7ab4e91d3c0f46d5a2e7c8b9f1a0e3d4c5b6a7981f2e3d4c5b6a7c8d9e0f1a2b",
+      "JWT_ISSUER": "https://staging-api.tregu.com",
+      "JWT_AUDIENCE": "tregu"
+    },
+    "CSRF_ORIGINS": [
+      "https://staging.tregu.com"
+    ],
+    "FEATURE_FLAGS": {
+      "allow_personal_to_comment": true,
+      "market_checkout_v2": false,
+      "enable_enterprise_modules": false
+    }
+  },
+
+  "DEPLOYMENT_PORTS": {
+    "BLUE": {
+      "API": 8001,
+      "WEB": 3001
+    },
+    "GREEN": {
+      "API": 8002,
+      "WEB": 3002
+    },
+    "STAGING": {
+      "API": 8003,
+      "WEB": 3003
+    }
+  },
+
+  "HEALTHCHECK": {
+    "API_ENDPOINT": "/healthz",
+    "WEB_ENDPOINT": "/api/healthz",
+    "INTERVAL": "10s",
+    "TIMEOUT": "2s",
+    "RETRIES": 6,
+    "START_PERIOD": "20s"
+  },
+
+  "NOTES": {
+    "UPDATE_BLUE": "After successful green deployment, update blue to green's versions for next cycle",
+    "SECRETS_ROTATION": "Rotate database passwords and secret keys quarterly",
+    "BACKUP_SCHEDULE": "Daily automated backups at 2:00 AM UTC",
+    "MONITORING": "Set up Sentry DSN in env files for error tracking"
+  }
+}

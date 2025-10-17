@@ -1,0 +1,8 @@
+﻿=== Quick Auth Report 2025-10-11T18:06:54 ===
+healthz: ERROR Unable to connect to the remote server
+openapi: ERROR Unable to connect to the remote server
+preflight: ERROR Unable to connect to the remote server
+register: ERROR Unable to connect to the remote server
+login: ERROR Unable to connect to the remote server
+me: ERROR Unable to connect to the remote server
+fe: ERROR Unable to connect to the remote server

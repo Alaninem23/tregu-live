@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://tregu.com/sitemap.xml
+
+# Disallow staging and internal areas
+User-agent: *
+Disallow: /admin
+Disallow: /_next/
+Disallow: /api/internal/
+Disallow: /api/auth/
+Disallow: /_vercel/
+
+# Crawl delay for rate limiting (optional)
+Crawl-delay: 1
+
+# Allow common bots
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Slurp
+User-agent: DuckDuckBot
+Allow: /
+
+# Block bad bots
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: DotBot
+Disallow: /

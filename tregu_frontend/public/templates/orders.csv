@@ -1,0 +1,3 @@
+order_no,customer_code,order_date,currency,sku,qty,unit_price
+SO-1001,CUST001,2025-10-01,USD,A-100,10,4.50
+SO-1001,CUST001,2025-10-01,USD,B-220,2,9.75

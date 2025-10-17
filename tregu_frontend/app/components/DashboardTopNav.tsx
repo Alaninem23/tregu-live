@@ -1,0 +1,14 @@
+"use client";
+import Link from "next/link";
+export default function DashboardTopNav({ isBiz }: { isBiz: boolean }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Link className="btn" href="/join/profile">Profile</Link>
+      {isBiz && <Link className="btn" href="/systems">Systems</Link>}
+      {isBiz && <Link className="btn" href="/catalog/upload">Catalog</Link>}
+      {isBiz && <Link className="btn" href="/systems/integrations">Integrations</Link>}
+      <Link className="btn" href="/settings/appearance">Appearance</Link>
+      <Link className="btn" href="/settings/access">Access</Link>
+    </div>
+  );
+}

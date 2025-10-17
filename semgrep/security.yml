@@ -1,0 +1,367 @@
+# Tregu Enterprise Security Rules
+# Comprehensive static analysis for branding lockdown, integration security, and compliance
+
+rules:
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # BRANDING LOCKDOWN
+  # ═══════════════════════════════════════════════════════════════════════════════
+  
+  - id: tregu-no-branding-endpoints
+    message: "Branding customization endpoints are FORBIDDEN. All branding is code-controlled."
+    severity: ERROR
+    languages: [python, javascript, typescript]
+    pattern-either:
+      - pattern: |
+          router.$METHOD("/**branding**", ...)
+      - pattern: |
+          router.$METHOD("/**theme**", ...)
+      - pattern: |
+          router.$METHOD("/**logo**", ...)
+      - pattern: |
+          app.$METHOD("/**branding**", ...)
+      - pattern: |
+          app.$METHOD("/**theme**", ...)
+      - pattern: |
+          app.router.$METHOD("/**branding**", ...)
+    metadata:
+      category: security
+      cwe: "CWE-284: Improper Access Control"
+      confidence: HIGH
+
+  - id: tregu-no-branding-env-vars
+    message: "Branding/theming environment variables are forbidden. Use /lib/brandPolicy.ts constants."
+    severity: ERROR
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: process.env.$X
+          - pattern: $CONF.$Y
+      - metavariable-regex:
+          metavariable: $X
+          regex: .*(BRAND|THEME|COLOR|FAVICON|LOGO|CSS).*
+      - metavariable-regex:
+          metavariable: $Y
+          regex: .*(brand|theme|color|favicon|logo|css).*
+    paths:
+      exclude:
+        - "**/brandPolicy.ts"
+        - "**/brand.ts"
+    metadata:
+      category: security
+      confidence: HIGH
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # INTEGRATION PROXY BYPASS PREVENTION
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-no-direct-platform-calls
+    message: "Direct platform API calls are FORBIDDEN. All calls must go through Integration Proxy at /api/integrations/*/proxy"
+    severity: ERROR
+    languages: [javascript, typescript, python]
+    patterns:
+      - pattern-either:
+          - pattern: fetch($URL, ...)
+          - pattern: axios.$METHOD($URL, ...)
+          - pattern: requests.$METHOD($URL, ...)
+          - pattern: httpx.$METHOD($URL, ...)
+      - metavariable-regex:
+          metavariable: $URL
+          regex: .*(shopify|woocommerce|squareup|stripe|paypal|quickbooks|xero|salesforce|hubspot|slack|mailchimp)\.com.*
+    paths:
+      exclude:
+        - "**/integration-proxy/**"
+        - "**/integrations/proxy/**"
+        - "**/test/**"
+        - "**/tests/**"
+    metadata:
+      category: security
+      cwe: "CWE-441: Unintended Proxy or Intermediary"
+      confidence: HIGH
+      fix: "Use /api/integrations/{platform}/proxy endpoint instead"
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # WEBHOOK HMAC VERIFICATION
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-webhook-requires-hmac
+    message: "Webhook handlers MUST verify HMAC signatures before processing payload"
+    severity: ERROR
+    languages: [python, javascript, typescript]
+    patterns:
+      - pattern-either:
+          # Python FastAPI/Flask
+          - pattern: |
+              @$APP.$METHOD("/webhooks/$PATH")
+              def $FUNC($REQ):
+                  ...
+          - pattern: |
+              @router.$METHOD("/webhooks/$PATH")
+              def $FUNC($REQ):
+                  ...
+          # Express/Next.js
+          - pattern: |
+              app.$METHOD("/webhooks/$PATH", ($REQ, $RES) => {
+                  ...
+              })
+          - pattern: |
+              router.$METHOD("/webhooks/$PATH", ($REQ, $RES) => {
+                  ...
+              })
+      - pattern-not: |
+          ...
+          verify_hmac(...)
+          ...
+      - pattern-not: |
+          ...
+          verifyWebhookSignature(...)
+          ...
+    metadata:
+      category: security
+      cwe: "CWE-345: Insufficient Verification of Data Authenticity"
+      confidence: MEDIUM
+      fix: "Call verify_hmac() or verifyWebhookSignature() before processing request.body"
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # DANGEROUS CODE EXECUTION
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-no-eval
+    message: "Use of eval/exec/Function is FORBIDDEN. High risk of code injection."
+    severity: ERROR
+    languages: [python, javascript, typescript]
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+      - pattern: exec(...)
+      - pattern: execfile(...)
+    metadata:
+      category: security
+      cwe: "CWE-94: Improper Control of Generation of Code"
+      confidence: HIGH
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # HARDCODED SECRETS
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-no-hardcoded-secrets
+    message: "Hardcoded secrets detected. Use KMS, Vault, or environment variables."
+    severity: ERROR
+    languages: [python, javascript, typescript, go, ruby, java]
+    patterns:
+      - pattern-regex: '(?i)(secret|api[_-]?key|token|password|private[_-]?key)\s*[:=]\s*["\'][A-Za-z0-9_\-\/\+=]{16,}["\']'
+    paths:
+      exclude:
+        - "**/test/**"
+        - "**/tests/**"
+        - "**/__tests__/**"
+        - "**/fixtures/**"
+    metadata:
+      category: security
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      confidence: MEDIUM
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # OPEN REDIRECT VULNERABILITIES
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-no-open-redirect
+    message: "Validate redirect_uri against allowlist to prevent open redirects"
+    severity: ERROR
+    languages: [python, javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              redirect_uri = $URI
+              ...
+              redirect($URI)
+          - pattern: |
+              const redirect_uri = $URI
+              ...
+              res.redirect($URI)
+      - pattern-not: |
+          ...
+          if $URI in ALLOWED_REDIRECTS:
+              ...
+      - pattern-not: |
+          ...
+          if ALLOWED_REDIRECTS.includes($URI):
+              ...
+    metadata:
+      category: security
+      cwe: "CWE-601: URL Redirection to Untrusted Site"
+      confidence: MEDIUM
+      fix: "Check redirect_uri against an allowlist before redirecting"
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # SQL INJECTION PREVENTION
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-no-string-concat-sql
+    message: "SQL query construction with string concatenation is FORBIDDEN. Use parameterized queries."
+    severity: ERROR
+    languages: [python, javascript, typescript]
+    pattern-either:
+      - pattern: |
+          $QUERY = "SELECT * FROM " + $TABLE + ...
+      - pattern: |
+          $QUERY = f"SELECT * FROM {$TABLE}..."
+      - pattern: |
+          $QUERY = `SELECT * FROM ${$TABLE}...`
+      - pattern: |
+          execute($CONN, "SELECT * FROM " + $VAR + ...)
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+      confidence: HIGH
+      fix: "Use parameterized queries or ORM methods"
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # CSRF TOKEN VALIDATION
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-csrf-token-required
+    message: "State-changing endpoints require CSRF token validation"
+    severity: WARNING
+    languages: [python, javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              @app.post($PATH)
+              def $FUNC($REQ):
+                  ...
+          - pattern: |
+              app.post($PATH, ($REQ, $RES) => {
+                  ...
+              })
+      - pattern-not: |
+          ...
+          verify_csrf_token(...)
+          ...
+      - pattern-not: |
+          ...
+          @csrf_protect
+          ...
+    paths:
+      include:
+        - "**/api/**"
+      exclude:
+        - "**/webhooks/**"
+    metadata:
+      category: security
+      cwe: "CWE-352: Cross-Site Request Forgery"
+      confidence: LOW
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # TENANT ISOLATION
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-enforce-tenant-filter
+    message: "Database queries MUST filter by tenant_id to prevent cross-tenant data access"
+    severity: ERROR
+    languages: [python]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $SESSION.query($MODEL).all()
+          - pattern: |
+              $SESSION.query($MODEL).first()
+          - pattern: |
+              $MODEL.query.all()
+      - pattern-not: |
+          ...
+          .filter($MODEL.tenant_id == $TENANT)
+          ...
+      - pattern-not: |
+          ...
+          .filter_by(tenant_id=$TENANT)
+          ...
+    paths:
+      include:
+        - "**/routers/**"
+        - "**/api/**"
+      exclude:
+        - "**/admin/**"
+        - "**/system/**"
+    metadata:
+      category: security
+      cwe: "CWE-639: Authorization Bypass Through User-Controlled Key"
+      confidence: HIGH
+      fix: "Add .filter(Model.tenant_id == tenant_id) to query"
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # RATE LIMIT BYPASS ATTEMPTS
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-no-rate-limit-bypass
+    message: "Endpoint appears to bypass rate limiting middleware"
+    severity: WARNING
+    languages: [python, javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              @app.$METHOD($PATH)
+              @skip_rate_limit
+              def $FUNC(...):
+                  ...
+          - pattern: |
+              app.$METHOD($PATH, skipRateLimit, ...)
+      - metavariable-regex:
+          metavariable: $PATH
+          regex: ^/api/.*
+    metadata:
+      category: security
+      confidence: MEDIUM
+      fix: "Remove rate limit bypass or document exception with security team approval"
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # INTEGRATION OAUTH SCOPE VALIDATION
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-validate-oauth-scopes
+    message: "OAuth scope validation required based on account tier"
+    severity: ERROR
+    languages: [python, javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              def oauth_callback($CODE, ...):
+                  $TOKEN = exchange_code($CODE)
+                  ...
+          - pattern: |
+              async function oauthCallback($CODE) {
+                  const $TOKEN = await exchangeCode($CODE)
+                  ...
+              }
+      - pattern-not: |
+          ...
+          validate_scopes_for_tier(...)
+          ...
+    paths:
+      include:
+        - "**/integrations/**"
+        - "**/oauth/**"
+    metadata:
+      category: security
+      confidence: MEDIUM
+      fix: "Call validate_scopes_for_tier(token, user_tier) after token exchange"
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # PII LOGGING PREVENTION
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  - id: tregu-no-pii-in-logs
+    message: "Potential PII detected in log statement. Redact sensitive data."
+    severity: WARNING
+    languages: [python, javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: logger.$METHOD(..., $VAR, ...)
+          - pattern: console.$METHOD(..., $VAR, ...)
+      - metavariable-regex:
+          metavariable: $VAR
+          regex: .*(email|phone|ssn|credit_card|password|token|secret).*
+    metadata:
+      category: security
+      cwe: "CWE-532: Insertion of Sensitive Information into Log File"
+      confidence: LOW
+      fix: "Redact sensitive fields before logging"

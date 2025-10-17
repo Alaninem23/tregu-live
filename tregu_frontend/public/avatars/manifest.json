@@ -1,0 +1,765 @@
+{
+  "version": 1,
+  "avatars": [
+    {
+      "id": "tb-01",
+      "name": "Atlas",
+      "file": "/avatars/tb-01.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "low",
+        "caution": "high",
+        "domain_bias": [
+          "inventory",
+          "planning"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "clear",
+        "speed": 1
+      }
+    },
+    {
+      "id": "tb-02",
+      "name": "Harbor",
+      "file": "/avatars/tb-02.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "low",
+        "caution": "high",
+        "domain_bias": [
+          "wms",
+          "tms"
+        ]
+      },
+      "voice": {
+        "gender": "male",
+        "style": "concise",
+        "speed": 0.95
+      }
+    },
+    {
+      "id": "tb-03",
+      "name": "Cinder",
+      "file": "/avatars/tb-03.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "medium",
+        "caution": "high",
+        "domain_bias": [
+          "crm",
+          "projects"
+        ]
+      },
+      "voice": {
+        "gender": "female",
+        "style": "warm",
+        "speed": 1.05
+      }
+    },
+    {
+      "id": "tb-04",
+      "name": "Quarry",
+      "file": "/avatars/tb-04.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "medium",
+        "caution": "medium",
+        "domain_bias": [
+          "finance",
+          "controls"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "authoritative",
+        "speed": 0.9
+      }
+    },
+    {
+      "id": "tb-05",
+      "name": "Nova",
+      "file": "/avatars/tb-05.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "high",
+        "caution": "medium",
+        "domain_bias": [
+          "manufacturing",
+          "planning"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "clear",
+        "speed": 1
+      }
+    },
+    {
+      "id": "tb-06",
+      "name": "Meridian",
+      "file": "/avatars/tb-06.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "high",
+        "caution": "medium",
+        "domain_bias": [
+          "analytics",
+          "finance"
+        ]
+      },
+      "voice": {
+        "gender": "male",
+        "style": "concise",
+        "speed": 0.95
+      }
+    },
+    {
+      "id": "tb-07",
+      "name": "Slate",
+      "file": "/avatars/tb-07.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "low",
+        "caution": "low",
+        "domain_bias": [
+          "inventory",
+          "wms"
+        ]
+      },
+      "voice": {
+        "gender": "female",
+        "style": "warm",
+        "speed": 1.05
+      }
+    },
+    {
+      "id": "tb-08",
+      "name": "Ember",
+      "file": "/avatars/tb-08.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "low",
+        "caution": "low",
+        "domain_bias": [
+          "otc",
+          "crm"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "authoritative",
+        "speed": 0.9
+      }
+    },
+    {
+      "id": "tb-09",
+      "name": "Halo",
+      "file": "/avatars/tb-09.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "medium",
+        "caution": "low",
+        "domain_bias": [
+          "p2p",
+          "suppliers"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "clear",
+        "speed": 1
+      }
+    },
+    {
+      "id": "tb-10",
+      "name": "Aster",
+      "file": "/avatars/tb-10.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "medium",
+        "caution": "high",
+        "domain_bias": [
+          "inventory",
+          "valuation"
+        ]
+      },
+      "voice": {
+        "gender": "male",
+        "style": "concise",
+        "speed": 0.95
+      }
+    },
+    {
+      "id": "tb-11",
+      "name": "Vela",
+      "file": "/avatars/tb-11.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "high",
+        "caution": "high",
+        "domain_bias": [
+          "planning",
+          "s&op"
+        ]
+      },
+      "voice": {
+        "gender": "female",
+        "style": "warm",
+        "speed": 1.05
+      }
+    },
+    {
+      "id": "tb-12",
+      "name": "Orion",
+      "file": "/avatars/tb-12.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "high",
+        "caution": "high",
+        "domain_bias": [
+          "tms",
+          "shipping"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "authoritative",
+        "speed": 0.9
+      }
+    },
+    {
+      "id": "tb-13",
+      "name": "Lyra",
+      "file": "/avatars/tb-13.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "low",
+        "caution": "medium",
+        "domain_bias": [
+          "wms",
+          "slotting"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "clear",
+        "speed": 1
+      }
+    },
+    {
+      "id": "tb-14",
+      "name": "Aria",
+      "file": "/avatars/tb-14.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "low",
+        "caution": "medium",
+        "domain_bias": [
+          "crm",
+          "cpq"
+        ]
+      },
+      "voice": {
+        "gender": "male",
+        "style": "concise",
+        "speed": 0.95
+      }
+    },
+    {
+      "id": "tb-15",
+      "name": "Titan",
+      "file": "/avatars/tb-15.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "medium",
+        "caution": "medium",
+        "domain_bias": [
+          "manufacturing",
+          "bom"
+        ]
+      },
+      "voice": {
+        "gender": "female",
+        "style": "warm",
+        "speed": 1.05
+      }
+    },
+    {
+      "id": "tb-16",
+      "name": "Quartz",
+      "file": "/avatars/tb-16.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "medium",
+        "caution": "low",
+        "domain_bias": [
+          "finance",
+          "gl"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "authoritative",
+        "speed": 0.9
+      }
+    },
+    {
+      "id": "tb-17",
+      "name": "Onyx",
+      "file": "/avatars/tb-17.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "high",
+        "caution": "low",
+        "domain_bias": [
+          "analytics",
+          "dashboards"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "clear",
+        "speed": 1
+      }
+    },
+    {
+      "id": "tb-18",
+      "name": "Azure",
+      "file": "/avatars/tb-18.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "high",
+        "caution": "low",
+        "domain_bias": [
+          "planning",
+          "atp"
+        ]
+      },
+      "voice": {
+        "gender": "male",
+        "style": "concise",
+        "speed": 0.95
+      }
+    },
+    {
+      "id": "tb-19",
+      "name": "Verdant",
+      "file": "/avatars/tb-19.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "low",
+        "caution": "high",
+        "domain_bias": [
+          "inventory",
+          "uom"
+        ]
+      },
+      "voice": {
+        "gender": "female",
+        "style": "warm",
+        "speed": 1.05
+      }
+    },
+    {
+      "id": "tb-20",
+      "name": "Saffron",
+      "file": "/avatars/tb-20.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "low",
+        "caution": "high",
+        "domain_bias": [
+          "p2p",
+          "receiving"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "authoritative",
+        "speed": 0.9
+      }
+    },
+    {
+      "id": "tb-21",
+      "name": "Indigo",
+      "file": "/avatars/tb-21.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "medium",
+        "caution": "high",
+        "domain_bias": [
+          "otc",
+          "returns"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "clear",
+        "speed": 1
+      }
+    },
+    {
+      "id": "tb-22",
+      "name": "Crimson",
+      "file": "/avatars/tb-22.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "medium",
+        "caution": "medium",
+        "domain_bias": [
+          "tms",
+          "labels"
+        ]
+      },
+      "voice": {
+        "gender": "male",
+        "style": "concise",
+        "speed": 0.95
+      }
+    },
+    {
+      "id": "tb-23",
+      "name": "Graphite",
+      "file": "/avatars/tb-23.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "high",
+        "caution": "medium",
+        "domain_bias": [
+          "wms",
+          "rf"
+        ]
+      },
+      "voice": {
+        "gender": "female",
+        "style": "warm",
+        "speed": 1.05
+      }
+    },
+    {
+      "id": "tb-24",
+      "name": "Flint",
+      "file": "/avatars/tb-24.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "high",
+        "caution": "medium",
+        "domain_bias": [
+          "projects",
+          "wip"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "authoritative",
+        "speed": 0.9
+      }
+    },
+    {
+      "id": "tb-25",
+      "name": "Cypress",
+      "file": "/avatars/tb-25.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "low",
+        "caution": "low",
+        "domain_bias": [
+          "planning",
+          "forecast"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "clear",
+        "speed": 1
+      }
+    },
+    {
+      "id": "tb-26",
+      "name": "Ash",
+      "file": "/avatars/tb-26.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "low",
+        "caution": "low",
+        "domain_bias": [
+          "inventory",
+          "cyclecounts"
+        ]
+      },
+      "voice": {
+        "gender": "male",
+        "style": "concise",
+        "speed": 0.95
+      }
+    },
+    {
+      "id": "tb-27",
+      "name": "Coral",
+      "file": "/avatars/tb-27.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "medium",
+        "caution": "low",
+        "domain_bias": [
+          "crm",
+          "accounts"
+        ]
+      },
+      "voice": {
+        "gender": "female",
+        "style": "warm",
+        "speed": 1.05
+      }
+    },
+    {
+      "id": "tb-28",
+      "name": "Teal",
+      "file": "/avatars/tb-28.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "medium",
+        "caution": "high",
+        "domain_bias": [
+          "wms",
+          "putaway"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "authoritative",
+        "speed": 0.9
+      }
+    },
+    {
+      "id": "tb-29",
+      "name": "Umber",
+      "file": "/avatars/tb-29.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "high",
+        "caution": "high",
+        "domain_bias": [
+          "manufacturing",
+          "mrp"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "clear",
+        "speed": 1
+      }
+    },
+    {
+      "id": "tb-30",
+      "name": "Ivory",
+      "file": "/avatars/tb-30.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "high",
+        "caution": "high",
+        "domain_bias": [
+          "finance",
+          "ap_ar"
+        ]
+      },
+      "voice": {
+        "gender": "male",
+        "style": "concise",
+        "speed": 0.95
+      }
+    },
+    {
+      "id": "tb-31",
+      "name": "Cobalt",
+      "file": "/avatars/tb-31.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "low",
+        "caution": "medium",
+        "domain_bias": [
+          "integrations",
+          "edi"
+        ]
+      },
+      "voice": {
+        "gender": "female",
+        "style": "warm",
+        "speed": 1.05
+      }
+    },
+    {
+      "id": "tb-32",
+      "name": "Amber",
+      "file": "/avatars/tb-32.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "low",
+        "caution": "medium",
+        "domain_bias": [
+          "analytics",
+          "drilldown"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "authoritative",
+        "speed": 0.9
+      }
+    },
+    {
+      "id": "tb-33",
+      "name": "Jade",
+      "file": "/avatars/tb-33.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "medium",
+        "caution": "medium",
+        "domain_bias": [
+          "inventory",
+          "transfers"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "clear",
+        "speed": 1
+      }
+    },
+    {
+      "id": "tb-34",
+      "name": "Pearl",
+      "file": "/avatars/tb-34.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "medium",
+        "caution": "low",
+        "domain_bias": [
+          "planning",
+          "ctp"
+        ]
+      },
+      "voice": {
+        "gender": "male",
+        "style": "concise",
+        "speed": 0.95
+      }
+    },
+    {
+      "id": "tb-35",
+      "name": "Sterling",
+      "file": "/avatars/tb-35.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "high",
+        "caution": "low",
+        "domain_bias": [
+          "crm",
+          "quotes"
+        ]
+      },
+      "voice": {
+        "gender": "female",
+        "style": "warm",
+        "speed": 1.05
+      }
+    },
+    {
+      "id": "tb-36",
+      "name": "Dawn",
+      "file": "/avatars/tb-36.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "high",
+        "caution": "low",
+        "domain_bias": [
+          "projects",
+          "t&e"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "authoritative",
+        "speed": 0.9
+      }
+    },
+    {
+      "id": "tb-37",
+      "name": "Solace",
+      "file": "/avatars/tb-37.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "low",
+        "caution": "high",
+        "domain_bias": [
+          "integrations",
+          "ipass"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "clear",
+        "speed": 1
+      }
+    },
+    {
+      "id": "tb-38",
+      "name": "Harbinger",
+      "file": "/avatars/tb-38.svg",
+      "persona": {
+        "tone": "neutral",
+        "verbosity": "low",
+        "caution": "high",
+        "domain_bias": [
+          "admin",
+          "sso"
+        ]
+      },
+      "voice": {
+        "gender": "male",
+        "style": "concise",
+        "speed": 0.95
+      }
+    },
+    {
+      "id": "tb-39",
+      "name": "Nimbus",
+      "file": "/avatars/tb-39.svg",
+      "persona": {
+        "tone": "friendly",
+        "verbosity": "medium",
+        "caution": "high",
+        "domain_bias": [
+          "analytics",
+          "kpi"
+        ]
+      },
+      "voice": {
+        "gender": "female",
+        "style": "warm",
+        "speed": 1.05
+      }
+    },
+    {
+      "id": "tb-40",
+      "name": "Vertex",
+      "file": "/avatars/tb-40.svg",
+      "persona": {
+        "tone": "formal",
+        "verbosity": "medium",
+        "caution": "medium",
+        "domain_bias": [
+          "system",
+          "assistant"
+        ]
+      },
+      "voice": {
+        "gender": "neutral",
+        "style": "authoritative",
+        "speed": 0.9
+      }
+    }
+  ]
+}

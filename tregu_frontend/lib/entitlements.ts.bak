@@ -1,0 +1,35 @@
+export type Tier = 'starter' | 'standard' | 'pro';
+
+type TierInfo = {
+  priceBase: number;        // base price per workspace
+  pricePerSeat: number;     // price per seat per month
+  features: Record<string, boolean>;
+};
+
+export const TIERS: Record<Tier, TierInfo> = {
+  // Note: 'starter' is used for Personal (free) and for Business dev defaults.
+  starter:  { priceBase: 0,  pricePerSeat: 0,  features: { barcode: true, catalog_basic: true, integrations_basic: true, appearance_basic: true } },
+  standard: { priceBase: 0,  pricePerSeat: 19, features: { barcode: true, catalog: true, integrations: true, appearance: true, tracking: true } },
+  pro:      { priceBase: 0,  pricePerSeat: 49, features: { barcode: true, catalog: true, integrations: true, appearance: true, tracking: true, advanced_customization: true } },
+};
+
+export function getCurrentTier(): Tier {
+  if (typeof window === 'undefined') return 'starter';
+  const saved = window.localStorage.getItem('tregu:tier');
+  return (['starter','standard','pro'] as Tier[]).includes(saved as Tier) ? (saved as Tier) : 'starter';
+}
+
+export function setCurrentTier(t: Tier) {
+  if (typeof window !== 'undefined') window.localStorage.setItem('tregu:tier', t);
+}
+
+export function hasFeature(key: string, tier?: Tier): boolean {
+  const t = tier ?? getCurrentTier();
+  return !!TIERS[t].features[key];
+}
+
+export function monthlyPrice(tier: Tier, seats: number): number {
+  const t = TIERS[tier];
+  const s = Math.max(1, seats|0);
+  return t.priceBase + t.pricePerSeat * s;
+}

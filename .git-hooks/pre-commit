@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# Branding Lockdown Pre-commit Hook
+# Blocks commits containing any branding customization references
+# Install: chmod +x .git/hooks/pre-commit
+
+set -euo pipefail
+
+echo ""
+echo "🔒 Branding Lockdown Pre-commit Check"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+VIOLATIONS=0
+
+# Check 1: ripgrep scan
+echo "1️⃣  Scanning for blocked terms..."
+if command -v rg >/dev/null 2>&1; then
+  if [ -f .branding-blocklist.txt ]; then
+    if rg -n --ignore-case --hidden -f .branding-blocklist.txt . \
+      --glob '!package-lock.json' \
+      --glob '!.next/**' \
+      --glob '!dist/**' \
+      --glob '!node_modules/**' \
+      --glob '!venv/**' \
+      --glob '!**/*.png' \
+      --glob '!**/*.jpg' 2>&1 | grep -v "^$"; then
+      echo "   ❌ Branding terms found in staged files"
+      VIOLATIONS=$((VIOLATIONS + 1))
+    else
+      echo "   ✅ No blocked terms found"
+    fi
+  else
+    echo "   ⚠️  .branding-blocklist.txt not found"
+    VIOLATIONS=$((VIOLATIONS + 1))
+  fi
+else
+  echo "   ⚠️  ripgrep not installed, skipping grep scan"
+fi
+
+# Check 2: Python scanner
+echo "2️⃣  Running Python scanner..."
+if [ -f tools/branding_scan.py ]; then
+  if python3 tools/branding_scan.py > /dev/null 2>&1; then
+    echo "   ✅ Python scan passed"
+  else
+    echo "   ❌ Python scan failed"
+    VIOLATIONS=$((VIOLATIONS + 1))
+  fi
+else
+  echo "   ⚠️  tools/branding_scan.py not found"
+  VIOLATIONS=$((VIOLATIONS + 1))
+fi
+
+# Check 3: Semgrep (optional but recommended)
+echo "3️⃣  Running Semgrep structural checks..."
+if command -v semgrep >/dev/null 2>&1; then
+  if [ -f semgrep/branding.yml ]; then
+    if semgrep --quiet --config semgrep/branding.yml --error 2>&1 | grep -q "findings"; then
+      echo "   ❌ Semgrep found violations"
+      VIOLATIONS=$((VIOLATIONS + 1))
+    else
+      echo "   ✅ Semgrep passed"
+    fi
+  else
+    echo "   ⚠️  semgrep/branding.yml not found"
+  fi
+else
+  echo "   ℹ️  Semgrep not installed (optional check)"
+fi
+
+# Check 4: Verify brandPolicy.ts constant
+echo "4️⃣  Verifying policy constant..."
+if [ -f tregu_frontend/lib/brandPolicy.ts ]; then
+  if grep -q "BRANDING_CUSTOMIZATION_ENABLED = true" tregu_frontend/lib/brandPolicy.ts; then
+    echo "   ❌ BRANDING_CUSTOMIZATION_ENABLED is set to true!"
+    VIOLATIONS=$((VIOLATIONS + 1))
+  else
+    echo "   ✅ Policy constant is correct"
+  fi
+else
+  echo "   ⚠️  brandPolicy.ts not found"
+fi
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+if [ $VIOLATIONS -gt 0 ]; then
+  echo ""
+  echo "❌ COMMIT BLOCKED: Branding policy violations detected"
+  echo ""
+  echo "Branding customization is FORBIDDEN by system policy."
+  echo "Remove all branding/theming references before committing."
+  echo ""
+  echo "If you believe this is a false positive, contact the platform team."
+  echo ""
+  exit 1
+else
+  echo ""
+  echo "✅ All branding lockdown checks passed"
+  echo "   Proceeding with commit..."
+  echo ""
+  exit 0
+fi

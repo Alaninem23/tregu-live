@@ -1,0 +1,24 @@
+# CODEOWNERS
+# Branding lockdown enforcement - require platform-team approval for any branding-related changes
+
+# Any file path containing branding/theme/logo/favicon/color requires platform-team review
+*branding* @platform-team
+*theme* @platform-team
+*logo* @platform-team
+*favicon* @platform-team
+*color* @platform-team
+*white*label* @platform-team
+
+# Security configuration
+/config/security.yaml @platform-team @security-team
+
+# Brand policy enforcement
+/lib/brandPolicy.ts @platform-team
+/tools/branding_scan.py @platform-team
+/semgrep/branding.yml @platform-team
+/semgrep/security.yml @security-team
+
+# Middleware and rate limiting
+/tregu_backend/app/middleware/branding_lockdown.py @platform-team
+/tregu_backend/app/middleware/rate_limit.py @security-team
+/tregu_backend/app/middleware/webhook_quota.py @security-team

@@ -1,0 +1,56 @@
+﻿"use client";
+import Link from "next/link";
+import { useAuth } from "../providers/AuthProvider";
+
+export default function DashboardPage() {
+  const { user, signOut } = useAuth();
+  if (!user) return <div className="container py-10">You are signed out.</div>;
+
+  const isBiz = user.account_type === "business";
+  const subtitle = isBiz ? "Business account" : "Personal account";
+
+  return (
+    <div className="container py-8 space-y-8">
+      <div className="rounded-3xl p-6 md:p-8 bg-gradient-to-br from-slate-100 to-white border">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <div className="text-xs uppercase tracking-wide text-slate-500">{subtitle}</div>
+            <div className="text-2xl md:text-3xl font-semibold mt-1">Welcome{user.name ? `, ${user.name}` : ""}</div>
+            <div className="text-slate-600">{user.email}</div>
+          </div>
+          <div className="flex gap-2">
+            <Link className="btn" href="/join/profile">Edit profile</Link>
+            <button className="btn" onClick={()=>signOut()}>Sign out</button>
+          </div>
+        </div>
+      </div>
+
+      {isBiz ? (
+        <>
+          <div className="grid md:grid-cols-3 gap-4">
+            <Link href="/systems/catalog" className="rounded-2xl border p-5 hover:shadow">
+              <div className="text-lg font-medium mb-1">Listings</div>
+              <div className="text-slate-600 text-sm">Create and manage products.</div>
+            </Link>
+            <Link href="/systems/orders" className="rounded-2xl border p-5 hover:shadow">
+              <div className="text-lg font-medium mb-1">Orders</div>
+              <div className="text-slate-600 text-sm">Track and fulfill orders.</div>
+            </Link>
+            <Link href="/systems/systems" className="rounded-2xl border p-5 hover:shadow">
+              <div className="text-lg font-medium mb-1">Systems</div>
+              <div className="text-slate-600 text-sm">Connect WMS/OMS/POS modules.</div>
+            </Link>
+          </div>
+        </>
+      ) : (
+        <div className="rounded-2xl border p-6">
+          <div className="text-lg font-medium mb-1">Personal</div>
+          <div className="text-slate-600">Browse Marketplace and manage your profile.</div>
+          <div className="mt-4">
+            <Link href="/join/profile" className="btn btn-outline">Switch to Business</Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

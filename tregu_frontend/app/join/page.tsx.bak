@@ -1,0 +1,136 @@
+"use client";
+import { useMemo, useState } from 'react'
+import { loadDraft, saveDraft } from '../../lib/draft';
+
+type Mode = "personal" | "business";
+type Tier = "starter" | "standard" | "pro";
+
+const TIERS: Record<Tier, {label:string; price:string; blurb:string}> = {
+  starter:  { label: "Starter",  price: "$0/mo",  blurb: "Great to try Tregu" },
+  standard: { label: "Standard", price: "$19/mo", blurb: "Basics for small teams" },
+  pro:      { label: "Pro",      price: "$49/mo", blurb: "Advanced features + seats" },
+};
+
+function cx(...a: (string | false | null | undefined)[]) { return a.filter(Boolean).join(" "); }
+
+export default function JoinPage() {
+  const [mode, setMode] = useState<Mode>("personal");
+  const [tier, setTier] = useState<Tier>("pro");
+  const [seats, setSeats] = useState<number>(1);
+  const [org, setOrg] = useState<string>("Acme Co.");
+  const [email, setEmail] = useState<string>("alan@example.com");
+  const [password, setPassword] = useState<string>("secret");
+  const [name, setName] = useState<string>("Alan");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string>("");
+
+  const selectedLabel = useMemo(() => {
+    const t = TIERS[tier];
+    return `${t.label} â€" ${t.price}`;
+  }, [tier]);
+
+  async function call(path: string, init?: RequestInit) {
+    const res = await fetch(path, {
+      credentials: "include",
+      headers: { "content-type": "application/json", ...(init?.headers || {}) },
+      ...init,
+    (()=>{ saveDraft('join',{mode,plan,seats,email,password,name,businessName}) },[mode,plan,seats,email,password,name,businessName]);
+    const text = await res.text();
+    let body: any = null;
+    try { body = text ? JSON.parse(text) : null; } catch { body = text; }
+    return { ok: res.ok, status: res.status, body };
+  }
+
+  async function createAccount() {
+    setBusy(true); setMsg("");
+    // 1) Register (409 is OK = already exists)
+    const reg = await call("/api/auth/register", { method: "POST", body: JSON.stringify({ email, password, name }) (()=>{ saveDraft('join',{mode,plan,seats,email,password,name,businessName}) },[mode,plan,seats,email,password,name,businessName]);
+    if (!reg.ok && reg.status !== 409) { setBusy(false); setMsg(`Register failed (${reg.status}): ${JSON.stringify(reg.body)}`); return; }
+    // 2) Login
+    const login = await call("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) (()=>{ saveDraft('join',{mode,plan,seats,email,password,name,businessName}) },[mode,plan,seats,email,password,name,businessName]);
+    if (!login.ok) { setBusy(false); setMsg(`Login failed (${login.status}): ${JSON.stringify(login.body)}`); return; }
+    // 3) Save choice (non-blocking)
+    try { localStorage.setItem("tregu:signup", JSON.stringify({ mode, tier, seats, org, email, when: Date.now() })); } catch {}
+    // 4) Verify session & go
+    const me = await call("/api/auth/me", { method: "GET" (()=>{ saveDraft('join',{mode,plan,seats,email,password,name,businessName}) },[mode,plan,seats,email,password,name,businessName]);
+    if (me.ok) { window.location.href = "/"; }
+    else { setMsg("Signed in, but /api/auth/me did not return a user."); }
+    setBusy(false);
+  }
+
+  function bump(delta: number) {
+    setSeats(s => Math.max(1, Math.min(999, (Number.isFinite(s) ? s : 1) + delta)));
+  }
+
+  return (
+    <main><div className="mb-6 rounded-2xl bg-gradient-to-r from-[var(--brand,#2563eb)] to-indigo-500 p-6 text-white"><h1 className="text-2xl font-bold">Create your Tregu account</h1><p className="opacity-90">Personal is free. Business is per-seat with tiered features.</p></div>
+      <div className="mx-auto w-full max-w-5xl p-6 md:p-10 space-y-6">
+        <header className="space-y-1">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Create your account</h1>
+          <p className="text-slate-600">Pick a mode and plan, then finish your details.</p>
+        </header>
+
+        {/* Mode toggle */}
+        <div className="rounded-2xl border p-4 md:p-6 shadow-sm space-y-4">
+          <div className="inline-flex overflow-hidden rounded-xl border bg-slate-50">
+            <button
+              type="button"
+              className={cx("px-4 py-2 text-sm md:text-base", mode === "personal" ? "bg-slate-900 text-white" : "text-slate-700")}
+              onClick={() => setMode("personal")}
+            >Personal</button>
+            <button
+              type="button"
+              className={cx("px-4 py-2 text-sm md:text-base", mode === "business" ? "bg-slate-900 text-white" : "text-slate-700")}
+              onClick={() => setMode("business")}
+            >Business</button>
+          </div>
+
+          {/* Plans */}
+          {mode === "business" && (
+            <div className="grid gap-4 md:grid-cols-3">
+              {(Object.keys(TIERS) as Tier[]).map(k => {
+                const t = TIERS[k];
+                const active = tier === k;
+                return (
+                  <label key={k}
+                    className={cx(
+                      "cursor-pointer rounded-2xl border p-4 md:p-5 transition shadow-sm hover:shadow",
+                      active && "ring-2 ring-slate-900"
+                    )}
+                  >
+                    <input type="radio" name="tier" className="hidden" checked={active} onChange={() => setTier(k)} />
+                    <div className="flex items-baseline justify-between">
+                      <div className="text-lg font-semibold">{t.label}</div>
+                      <div className="text-sm text-slate-500">{t.price}</div>
+                    </div>
+                    <div className="mt-1 text-sm text-slate-600">{t.blurb}</div>
+                  </label>
+                );
+              })}
+            </div>
+          )}
+
+          {mode === "business" && (
+            <div className="rounded-xl bg-slate-50 border p-3 text-sm text-slate-700">
+              Selected plan: <span className="font-medium">{selectedLabel}</span>
+            </div>
+          )}
+
+          {/* Business extras */}
+          {mode === "business" && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block">
+                <div className="text-sm text-slate-600">
+<div className="grid grid-cols-1 gap-3 md:grid-cols-2 mt-3"><div><label className="text-sm text-slate-600">Website (optional)</label><input className="mt-1 w-full rounded-xl border bg-white/70 px-3 py-2" placeholder="https://acme.co" onChange={e=>setWebsite?.(e.target.value)} /></div><div><label className="text-sm text-slate-600">Industry</label><input className="mt-1 w-full rounded-xl border bg-white/70 px-3 py-2" placeholder="Retail, CPG, Apparel…" onChange={e=>setIndustry?.(e.target.value)} /></div></div>
+
+          {msg && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+              {msg}
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
+

@@ -1,0 +1,22 @@
+"use client"
+import { useEffect } from "react"
+
+export default function SessionHydrator(){
+  useEffect(() => {
+    try{
+      const hasCookie = typeof document !== "undefined" && document.cookie.includes("tregu_session=");
+      if (!hasCookie) {
+        const mode  = localStorage.getItem("tregu:accountMode") || "personal";
+        const plan  = localStorage.getItem("tregu:tier") || (mode === "business" ? "standard" : "starter");
+        const seats = Math.max(1, Number(localStorage.getItem("tregu:seats") || "1"));
+        fetch("/api/auth/register", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          credentials:"include",
+          body: JSON.stringify({ mode, plan, seats })
+        }).catch(()=>{});
+      }
+    }catch{}
+  }, []);
+  return null;
+}

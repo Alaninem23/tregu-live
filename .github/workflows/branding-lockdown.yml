@@ -1,0 +1,146 @@
+name: Branding Lockdown
+# CRITICAL: This workflow enforces zero-tolerance branding customization policy
+# Runs on all PRs and pushes to main branch
+# Any branding references will fail the build and block merge
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  branding-sweep:
+    name: Branding Policy Enforcement
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install ripgrep
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+      
+      - name: Install semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep
+      
+      - name: 1️⃣ Blocklist grep scan
+        id: grep_scan
+        run: |
+          echo "::group::Scanning for blocked branding terms"
+          if [ -f .branding-blocklist.txt ]; then
+            echo "Blocklist found, running ripgrep..."
+            # Capture output
+            if rg -n --ignore-case --hidden -f .branding-blocklist.txt . \
+              --glob '!package-lock.json' \
+              --glob '!yarn.lock' \
+              --glob '!pnpm-lock.yaml' \
+              --glob '!.next/**' \
+              --glob '!dist/**' \
+              --glob '!build/**' \
+              --glob '!node_modules/**' \
+              --glob '!venv/**' \
+              --glob '!venv_tregu/**' \
+              --glob '!**/*.png' \
+              --glob '!**/*.jpg' \
+              --glob '!**/*.jpeg' \
+              --glob '!**/*.gif' \
+              --glob '!**/*.ico' \
+              --glob '!**/*.woff' \
+              --glob '!**/*.woff2' \
+              --glob '!media/**' \
+              --glob '!uploads/**' \
+              --glob '!.git/**' > /tmp/rg_output.txt; then
+              echo "❌ FAIL: Branding terms found!"
+              cat /tmp/rg_output.txt
+              echo "::endgroup::"
+              exit 1
+            else
+              echo "✅ PASS: No branding terms found"
+              echo "::endgroup::"
+            fi
+          else
+            echo "⚠️  WARNING: .branding-blocklist.txt not found"
+            echo "::endgroup::"
+            exit 1
+          fi
+      
+      - name: 2️⃣ Python branding scanner
+        id: python_scan
+        run: |
+          echo "::group::Running Python branding scanner"
+          if [ -f tools/branding_scan.py ]; then
+            python3 tools/branding_scan.py
+          else
+            echo "⚠️  WARNING: tools/branding_scan.py not found"
+            exit 1
+          fi
+          echo "::endgroup::"
+      
+      - name: 3️⃣ Semgrep structural analysis
+        id: semgrep_scan
+        run: |
+          echo "::group::Running Semgrep structural checks"
+          if [ -f semgrep/branding.yml ]; then
+            semgrep --config semgrep/branding.yml --error --no-rewrite-rule-ids
+          else
+            echo "⚠️  WARNING: semgrep/branding.yml not found"
+            exit 1
+          fi
+          echo "::endgroup::"
+      
+      - name: 4️⃣ Check brandPolicy.ts constant
+        id: policy_check
+        run: |
+          echo "::group::Verifying BRANDING_CUSTOMIZATION_ENABLED = false"
+          if [ -f tregu_frontend/lib/brandPolicy.ts ]; then
+            if grep -q "BRANDING_CUSTOMIZATION_ENABLED = true" tregu_frontend/lib/brandPolicy.ts; then
+              echo "❌ FAIL: BRANDING_CUSTOMIZATION_ENABLED is set to true!"
+              echo "::endgroup::"
+              exit 1
+            else
+              echo "✅ PASS: Branding customization is disabled"
+              echo "::endgroup::"
+            fi
+          else
+            echo "⚠️  WARNING: brandPolicy.ts not found"
+            echo "::endgroup::"
+            exit 1
+          fi
+      
+      - name: Summary
+        if: success()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ BRANDING LOCKDOWN: ALL CHECKS PASSED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "✓ Blocklist grep scan: PASS"
+          echo "✓ Python scanner: PASS"
+          echo "✓ Semgrep structural analysis: PASS"
+          echo "✓ Policy constant verified: PASS"
+          echo ""
+          echo "No branding customization detected."
+          echo "Tregu brand identity is protected."
+      
+      - name: Failure summary
+        if: failure()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "❌ BRANDING LOCKDOWN: VIOLATIONS DETECTED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "Branding customization is FORBIDDEN."
+          echo "All references to branding/theming must be removed."
+          echo ""
+          echo "See step logs above for details."
+          echo "This PR cannot be merged until violations are resolved."

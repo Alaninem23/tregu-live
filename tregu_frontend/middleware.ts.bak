@@ -1,0 +1,29 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+export function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl;
+  const cookie = req.cookies.get("tregu_session")?.value;
+  let isDefaultSession = false;
+  if (cookie) {
+    try {
+      const v = JSON.parse(Buffer.from(cookie, "base64").toString("utf-8"));
+      isDefaultSession = v.mode === "personal" && v.plan === "starter" && v.seats === 1;
+    } catch {}
+  }
+  if (!cookie || (pathname === "/join" && isDefaultSession)) {
+    if (pathname.startsWith("/dashboard") || pathname.startsWith("/feed") || pathname.startsWith("/onboarding")) {
+      const url = req.nextUrl.clone(); url.pathname = "/join"; url.search = ""; return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+  let mode: "personal" | "business" = "personal";
+  try { const v = JSON.parse(Buffer.from(cookie, "base64").toString("utf-8")); mode = (v?.mode === "business") ? "business" : "personal"; } catch {}
+  if ((pathname.startsWith("/dashboard/systems") || pathname.startsWith("/dashboard/access") || pathname.startsWith("/onboarding")) && mode !== "business") {
+    const url = req.nextUrl.clone(); url.pathname = "/feed"; url.search = ""; return NextResponse.redirect(url);
+  }
+  // Allow /join even when logged in, so users can sign out
+  return NextResponse.next();
+}
+
+export const config = { matcher: ["/join","/onboarding","/feed","/dashboard/:path*"] };

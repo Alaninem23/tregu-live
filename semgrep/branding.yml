@@ -1,0 +1,146 @@
+rules:
+  # Rule 1: Block branding/theme endpoints
+  - id: no-branding-endpoints
+    patterns:
+      - pattern-either:
+          # Express/Next.js API routes
+          - pattern: |
+              app.$METHOD($PATH, ...)
+          - pattern: |
+              router.$METHOD($PATH, ...)
+          - pattern: |
+              export async function $METHOD($REQ) { ... }
+          # FastAPI routes
+          - pattern: |
+              @app.$METHOD($PATH)
+          - pattern: |
+              @router.$METHOD($PATH)
+      - metavariable-regex:
+          metavariable: $PATH
+          regex: .*(branding|brand|theme|logo|favicon|custom_css|color_scheme).*
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: (post|put|patch|delete|POST|PUT|PATCH|DELETE)
+    message: "Branding/theming endpoints are forbidden. Tregu brand is immutable."
+    languages: [javascript, typescript, python]
+    severity: ERROR
+    metadata:
+      category: security
+      cwe: "CWE-284: Improper Access Control"
+      confidence: HIGH
+
+  # Rule 2: Block branding config keys
+  - id: no-branding-config-keys
+    patterns:
+      - pattern-either:
+          # Environment variables
+          - pattern: process.env.$ENVVAR
+          - pattern: os.environ.get($ENVVAR)
+          - pattern: os.getenv($ENVVAR)
+          # Config object keys
+          - pattern: config.$KEY
+          - pattern: settings.$KEY
+      - metavariable-regex:
+          metavariable: $ENVVAR
+          regex: .*(BRAND|THEME|LOGO|FAVICON|COLOR|CSS|STYLE).*
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: .*(brand|theme|logo|favicon|color|css|style).*
+    message: "Branding/theming config keys are forbidden."
+    languages: [javascript, typescript, python]
+    severity: ERROR
+    metadata:
+      category: security
+      confidence: HIGH
+
+  # Rule 3: Block tenant branding DB fields
+  - id: no-tenant-branding-db-fields
+    patterns:
+      - pattern-either:
+          # SQL ALTER TABLE
+          - pattern: |
+              ALTER TABLE $TABLE ADD COLUMN $COLUMN ...
+          - pattern: |
+              "ALTER TABLE $TABLE ADD COLUMN $COLUMN ..."
+          - pattern: |
+              'ALTER TABLE $TABLE ADD COLUMN $COLUMN ...'
+          # SQLAlchemy/ORM
+          - pattern: |
+              Column($NAME, ...)
+      - metavariable-regex:
+          metavariable: $COLUMN
+          regex: .*(brand|theme|logo|favicon|color|css).*
+      - metavariable-regex:
+          metavariable: $NAME
+          regex: .*(brand|theme|logo|favicon|color|css).*
+    message: "Database fields for branding customization are forbidden."
+    languages: [sql, python, javascript, typescript]
+    severity: ERROR
+    metadata:
+      category: security
+      confidence: MEDIUM
+
+  # Rule 4: Block branding in imports/requires
+  - id: no-branding-imports
+    patterns:
+      - pattern-either:
+          - pattern: |
+              import ... from '$MODULE'
+          - pattern: |
+              require('$MODULE')
+          - pattern: |
+              from $MODULE import ...
+      - metavariable-regex:
+          metavariable: $MODULE
+          regex: .*(branding|brand-|theming).*
+    message: "Importing branding/theming modules is forbidden."
+    languages: [javascript, typescript, python]
+    severity: WARNING
+    metadata:
+      category: security
+      confidence: MEDIUM
+
+  # Rule 5: Block branding in Next.js dynamic routes
+  - id: no-branding-next-routes
+    patterns:
+      - pattern-either:
+          - pattern: |
+              export default function $PAGE() { ... }
+          - pattern: |
+              export async function generateMetadata(...) { ... }
+      - metavariable-regex:
+          metavariable: $PAGE
+          regex: .*(Branding|Brand|Theme|Logo).*
+    message: "Next.js pages for branding are forbidden."
+    languages: [javascript, typescript]
+    severity: ERROR
+    paths:
+      include:
+        - "*/app/**/page.tsx"
+        - "*/app/**/page.ts"
+        - "*/pages/**/*.tsx"
+    metadata:
+      category: security
+      confidence: HIGH
+
+  # Rule 6: Block branding in FastAPI models
+  - id: no-branding-pydantic-fields
+    patterns:
+      - pattern: |
+          class $MODEL(...):
+              ...
+              $FIELD: ...
+              ...
+      - metavariable-regex:
+          metavariable: $FIELD
+          regex: .*(brand|theme|logo|favicon|color|css).*
+    message: "Pydantic model fields for branding are forbidden."
+    languages: [python]
+    severity: ERROR
+    paths:
+      include:
+        - "*/schemas.py"
+        - "*/models.py"
+    metadata:
+      category: security
+      confidence: MEDIUM

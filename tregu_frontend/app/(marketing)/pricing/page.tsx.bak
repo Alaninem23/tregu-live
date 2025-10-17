@@ -1,0 +1,25 @@
+"use client"
+import { TIERS } from '../../../lib/entitlements'
+export default function Pricing(){
+  const items = Object.entries(TIERS) as any
+  return (
+    <main className="space-y-8 p-6">
+      <header className="text-center">
+        <h1 className="text-3xl font-bold">Simple pricing</h1>
+        <p className="text-slate-600">Personal is free. Business plans scale per seat.</p>
+      </header>
+      <div className="mx-auto grid max-w-4xl gap-4 md:grid-cols-3">
+        {items.filter(([k]: any)=> k!=='starter').map(([k,v]: any)=> (
+          <div key={k} className="rounded-2xl border p-6 shadow-sm bg-white/70">
+            <div className="text-sm uppercase tracking-wide text-slate-500">{k}</div>
+            <div className="mt-2 text-3xl font-bold">${v.pricePerSeat}<span className="text-base font-medium text-slate-500">/seat/mo</span></div>
+            <ul className="mt-4 space-y-1 text-sm">
+              {Object.keys(v.features).map((f:string)=> <li key={f}>• {f.replaceAll('_',' ')}</li>)}
+            </ul>
+            <a href="/join" className="mt-6 block w-full rounded-xl bg-[var(--brand,#2563eb)] px-3 py-2 text-center text-white">Choose {k}</a>
+          </div>
+        ))}
+      </div>
+    </main>
+  )
+}

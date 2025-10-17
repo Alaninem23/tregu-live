@@ -1,0 +1,126 @@
+/**
+ * Enterprise Systems Registry
+ * Central definition of all ERP/WMS/CRM/Finance modules
+ * Includes gaps vs. Oracle/SAP/NetSuite/Blue Yonder/Odoo
+ */
+
+import { SystemTile } from '@/types/enterprise';
+
+export const SYSTEMS: SystemTile[] = [
+  {
+    id: 'inventory',
+    label: 'Inventory',
+    description: 'Items, locations, categories, transactions',
+    route: '/inventory',
+    icon: 'inventory',
+    flagKey: 'inventory_core',
+    requiredRoles: ['inventory.read'],
+  },
+  {
+    id: 'finance',
+    label: 'Finance',
+    description: 'GL, AP/AR, consolidations, assets',
+    route: '/enterprise/finance',
+    icon: 'finance',
+    flagKey: 'fin_core',
+    requiredRoles: ['finance.read'],
+  },
+  {
+    id: 'ptp',
+    label: 'Procure-to-Pay',
+    description: 'Suppliers, POs, receiving, 3WM',
+    route: '/enterprise/ptp',
+    icon: 'p2p',
+    flagKey: 'ptp_core',
+  },
+  {
+    id: 'otc',
+    label: 'Order-to-Cash',
+    description: 'Quotes, orders, invoicing, returns',
+    route: '/enterprise/otc',
+    icon: 'o2c',
+    flagKey: 'otc_core',
+  },
+  {
+    id: 'wms',
+    label: 'WMS',
+    description: 'Bins, waves, RF scan, slotting',
+    route: '/enterprise/wms',
+    icon: 'wms',
+    flagKey: 'wms_core',
+  },
+  {
+    id: 'mrp',
+    label: 'Manufacturing',
+    description: 'BOM, routings, MRP/APS',
+    route: '/enterprise/mrp',
+    icon: 'mrp',
+    flagKey: 'mrp_core',
+  },
+  {
+    id: 'tms',
+    label: 'TMS/Shipping',
+    description: 'Rate-shop, labels, tracking',
+    route: '/enterprise/tms',
+    icon: 'tms',
+    flagKey: 'tms_core',
+  },
+  {
+    id: 'planning',
+    label: 'Planning',
+    description: 'Forecast, S&OP, ATP/CTP',
+    route: '/enterprise/planning',
+    icon: 'planning',
+    flagKey: 'plan_core',
+  },
+  {
+    id: 'crm',
+    label: 'CRM & CPQ',
+    description: 'Accounts, pipeline, quotes',
+    route: '/enterprise/crm',
+    icon: 'crm',
+    flagKey: 'crm_core',
+  },
+  {
+    id: 'projects',
+    label: 'Projects',
+    description: 'Proj acctg, T&E, WIP',
+    route: '/enterprise/projects',
+    icon: 'inventory',
+    flagKey: 'proj_core',
+  },
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    description: 'Dashboards, drill-down',
+    route: '/enterprise/analytics',
+    icon: 'analytics',
+    flagKey: 'bi_core',
+  },
+  {
+    id: 'integrations',
+    label: 'Integrations',
+    description: 'EDI, webhooks, iPaaS',
+    route: '/enterprise/integrations',
+    icon: 'integrations',
+    flagKey: 'integrations_core',
+  },
+  {
+    id: 'admin',
+    label: 'Admin',
+    description: 'Flags, RBAC, SSO/SCIM',
+    route: '/enterprise/admin',
+    icon: 'admin',
+    flagKey: 'admin_core',
+    requiredRoles: ['admin.manage'],
+  },
+  {
+    id: 'market',
+    label: 'Market Publishing',
+    description: 'Upload catalogs, sync products, post to Market',
+    route: '/enterprise/market',
+    icon: 'market',
+    flagKey: 'market_publish',
+    requiredRoles: ['commerce.read'],
+  },
+];

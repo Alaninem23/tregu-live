@@ -1,0 +1,110 @@
+﻿"use client";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { apiFetch } from "../utils/api";
+
+type BusinessMembership = { id: string; name: string; role: "owner" | "admin" | "operator" | "viewer" };
+
+type User = {
+  id: string;
+  email: string;
+  name?: string;
+  role?: "buyer" | "seller" | "admin";
+  avatarUrl?: string;
+  businessMemberships?: BusinessMembership[];
+  purchases?: Array<{ id: string; title: string; price_cents: number; status: string }>;
+  systems?: Array<{ key: string; name: string; tier: string; active: boolean; expires_at?: string }>;
+};
+
+type AuthContextType = {
+  user: User | null;
+  token: string | null;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, role?: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
+  refreshMe: () => Promise<void>;
+};
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export default function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const t = typeof window !== "undefined" ? window.localStorage.getItem("tregu:token") : null;
+    if (t) setToken(t);
+    (async () => {
+      try {
+        await loadMe(t);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  async function loadMe(existingToken?: string | null) {
+    try {
+      const me = await apiFetch<User>("/auth/me", { token: existingToken ?? token ?? undefined });
+      setUser(me);
+    } catch {
+      setUser(null);
+    }
+  }
+
+  const refreshMe = async () => {
+    await loadMe();
+  };
+
+  const signIn = async (email: string, password: string) => {
+    const res = await apiFetch<{ token: string; user: User }>("/auth/login", {
+      method: "POST",
+      body: { email, password }
+    });
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("tregu:token", res.token);
+    }
+    setToken(res.token);
+    setUser(res.user);
+    router.push("/dashboard");
+  };
+
+  const signUp = async (email: string, password: string, role: string = "buyer") => {
+    try {
+      await apiFetch("/auth/signup", { method: "POST", body: { email, password, role } });
+    } catch {
+      await apiFetch("/auth/register", { method: "POST", body: { email, password, role } });
+    }
+    await signIn(email, password);
+  };
+
+  const signOut = async () => {
+    try {
+      await apiFetch("/auth/logout", { method: "POST" });
+    } catch {}
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("tregu:token");
+    }
+    setToken(null);
+    setUser(null);
+    router.push("/auth/signin");
+  };
+
+  const deleteAccount = async () => {
+    await apiFetch("/users/me", { method: "DELETE" });
+    await signOut();
+  };
+
+  const value = useMemo(() => ({ user, token, loading, signIn, signUp, signOut, deleteAccount, refreshMe }), [user, token, loading]);
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+}

@@ -1,0 +1,21 @@
+'use client'
+
+import { WIDGETS } from '../../_components/widgets'
+
+export default function OMSPage() {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Order Management</h1>
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <WIDGETS.orders.component />
+        <WIDGETS.salesSummary.component />
+        <WIDGETS.products.component />
+      </div>
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <WIDGETS.oms.component />
+        <WIDGETS.cart.component />
+        <WIDGETS.profile.component />
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,25 @@
+"use client"
+import { TIERS, getCurrentTier, setCurrentTier } from '../../../lib/entitlements'
+import { useState } from 'react'
+export default function AccessPage(){
+  const [tier,setTier] = useState(getCurrentTier())
+  function pick(t:any){ setTier(t); setCurrentTier(t) }
+  const cards = Object.entries(TIERS) as any
+  return (
+    <main className="space-y-6 p-6">
+      <h1 className="text-2xl font-semibold">Access & Entitlements</h1>
+      <p className="text-slate-600">Business plans are billed per seat. Personal is free.</p>
+      <div className="grid gap-4 md:grid-cols-3">
+        {cards.filter(([k]: any)=> k!=='starter').map(([k,v]: any)=> (
+          <button key={k} onClick={()=>pick(k)} className={`rounded-2xl border p-4 text-left ${tier===k? 'ring-2 ring-[var(--brand,#2563eb)]' : ''}`}>
+            <div className="text-sm uppercase tracking-wide text-slate-500">{String(k)}</div>
+            <div className="mt-2 text-2xl font-bold">${v.pricePerSeat}/seat/mo</div>
+            <ul className="mt-3 space-y-1 text-sm">
+              {Object.keys(v.features).map((f:string)=> <li key={f}>• {f.replaceAll('_',' ')}</li>)}
+            </ul>
+          </button>
+        ))}
+      </div>
+    </main>
+  )
+}

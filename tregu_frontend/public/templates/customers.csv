@@ -1,0 +1,2 @@
+customer_code,name,email,phone,billing_address,shipping_address,tags
+CUST001,Acme Corp,ops@acme.com,555-0100,"123 Road, TX","123 Road, TX","key;wholesale"

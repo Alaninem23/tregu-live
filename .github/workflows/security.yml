@@ -1,0 +1,59 @@
+name: Security Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+jobs:
+  semgrep:
+    name: Semgrep Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Semgrep
+        run: pip install semgrep
+      
+      - name: Run Semgrep Security Rules
+        run: |
+          semgrep --config semgrep/security.yml \
+            --error \
+            --timeout 300 \
+            --verbose
+  
+  policy-validation:
+    name: Security Policy Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install PyYAML
+        run: pip install pyyaml
+      
+      - name: Validate security.yaml Structure
+        run: |
+          python -c "
+          import yaml
+          import sys
+          
+          with open('config/security.yaml') as f:
+              policy = yaml.safe_load(f)
+          
+          # Critical checks
+          assert policy['branding_lockdown'] == True, 'branding_lockdown must be true'
+          assert 'rate_limits' in policy, 'rate_limits section required'
+          assert 'tiers' in policy['rate_limits'], 'rate_limits.tiers required'
+          
+          required_tiers = ['free', 'verified', 'starter', 'pro', 'enterprise']
+          for tier in required_tiers:
+              assert tier in policy['rate_limits']['tiers'], f'Tier {tier} required'
+          
+          print('✅ Security policy validation passed')
+          "

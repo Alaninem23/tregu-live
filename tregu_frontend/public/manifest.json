@@ -1,0 +1,43 @@
+{
+  "name": "Tregu Inventory Manager",
+  "short_name": "Tregu Inventory",
+  "description": "Enterprise inventory management system for distribution centers with RFID support",
+  "start_url": "/inventory",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/tregu-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/tregu-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Add Item",
+      "short_name": "Add Item",
+      "description": "Quickly add a new inventory item",
+      "url": "/inventory?action=add",
+      "icons": [{ "src": "/tregu-logo.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Scan RFID",
+      "short_name": "RFID Scan",
+      "description": "Scan RFID tags for inventory tracking",
+      "url": "/inventory?action=scan",
+      "icons": [{ "src": "/tregu-logo.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": []
+}

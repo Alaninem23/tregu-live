@@ -1,0 +1,277 @@
+# config/security.yaml
+version: 1
+
+# ——— Global branding lockdown ———
+branding_lockdown: true  # No tenant (including Enterprise) may customize brand/theme/logo.
+
+# ——— Hard-deny write routes related to branding/theme/assets ———
+deny_routes:
+  - path_pattern: "/branding"
+    methods: ["POST", "PUT", "PATCH", "DELETE"]
+  - path_pattern: "/brand"
+    methods: ["POST", "PUT", "PATCH", "DELETE"]
+  - path_pattern: "/theme"
+    methods: ["POST", "PUT", "PATCH", "DELETE"]
+  - path_pattern: "/logo"
+    methods: ["POST", "PUT", "PATCH", "DELETE"]
+  - path_pattern: "/favicon"
+    methods: ["POST", "PUT", "PATCH", "DELETE"]
+
+# ——— Content Security Policy ———
+csp:
+  default_src: ["'self'"]
+  img_src: ["'self'", "data:"]
+  style_src: ["'self'", "'unsafe-inline'"]
+  script_src: ["'self'"]
+
+# ——— Rate limits (RPM + burst), with endpoint-specific overrides ———
+rate_limits:
+  tiers:
+    free:
+      requests_per_minute: 60
+      webhooks_per_day: 1000
+      burst: 30
+    verified:
+      requests_per_minute: 300
+      webhooks_per_day: 10000
+      burst: 100
+    starter:
+      requests_per_minute: 300
+      webhooks_per_day: 10000
+      burst: 100
+    pro:
+      requests_per_minute: 1000
+      webhooks_per_day: 50000
+      burst: 200
+    enterprise:
+      requests_per_minute: 2000
+      webhooks_per_day: 100000
+      burst: 400
+  
+  # Endpoint-specific overrides
+  endpoints:
+    # Integration endpoints - use tier defaults
+    - pattern: "^/api/integrations/.*"
+      tier_override: null
+    
+    # Export endpoints - stricter for free tier
+    - pattern: "^/api/export/.*"
+      tier_override:
+        free:
+          requests_per_minute: 20
+          burst: 10
+    
+    # Catalog publishing - very strict for free tier
+    - pattern: "^/api/market/catalog/publish$"
+      tier_override:
+        free:
+          requests_per_minute: 5
+          burst: 3
+    
+    # Analytics endpoints - pro/enterprise only
+    - pattern: "^/api/analytics/.*"
+      tier_override:
+        free:
+          requests_per_minute: 0
+          burst: 0
+        verified:
+          requests_per_minute: 0
+          burst: 0
+        starter:
+          requests_per_minute: 0
+          burst: 0
+    
+    # Webhook endpoints
+    - pattern: "^/api/integrations/.+/webhooks"
+      tier_override:
+        free:
+          requests_per_minute: 30
+          burst: 15
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PLATFORM INTEGRATIONS SECURITY
+# ═══════════════════════════════════════════════════════════════════════════════
+integrations:
+  # Default mode for new integrations
+  default_mode: "sandbox"   # sandbox | live
+  
+  # OAuth scopes by tier
+  oauth_scopes:
+    free: 
+      - "read_products"
+      - "read_orders"
+    verified:
+      - "read_products"
+      - "read_orders"
+      - "write_products"
+      - "manage_inventory"
+    starter:
+      - "read_products"
+      - "read_orders"
+      - "write_products"
+      - "manage_inventory"
+    pro:
+      - "read_products"
+      - "read_orders"
+      - "write_products"
+      - "manage_inventory"
+      - "write_orders"
+      - "manage_refunds"
+    enterprise:
+      - "read_products"
+      - "read_orders"
+      - "write_products"
+      - "manage_inventory"
+      - "write_orders"
+      - "manage_refunds"
+      - "manage_webhooks"
+  
+  # Security requirements
+  require_domain_verification_for_write: true
+  proxy_only: true          # All third-party calls must go via integration proxy
+  
+  # Webhook security
+  webhook:
+    require_hmac: true
+    signature_header: "X-Signature"
+    allowed_timestamp_skew_seconds: 300
+    replay_protection_ttl_seconds: 86400
+    
+  # Supported platforms
+  platforms:
+    - shopify
+    - woocommerce
+    - square
+    - stripe
+    - paypal
+    - quickbooks
+    - xero
+    - salesforce
+    - hubspot
+    - slack
+    - shipstation
+    - mailchimp
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TOKEN LIFECYCLE
+# ═══════════════════════════════════════════════════════════════════════════════
+tokens:
+  storage: "kms"            # kms | vault | file (dev only)
+  encryption: "aes256-gcm"
+  
+  # Token TTL by tier (hours)
+  ttl_hours:
+    free: 24
+    verified: 168          # 7 days
+    starter: 168
+    pro: 168
+    enterprise: 168
+  
+  # Auto-rotate on inactivity
+  rotate_on_inactivity_days: 30
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PUBLISHING & MODERATION
+# ═══════════════════════════════════════════════════════════════════════════════
+publishing:
+  # Free tier restrictions
+  drafts_only_for_free: true
+  moderation_required_for_free: true
+  
+  # Auto-moderation triggers
+  auto_flag_keywords:
+    - "spam"
+    - "scam"
+    - "fake"
+    - "counterfeit"
+  
+  # Moderation queue settings
+  queue:
+    max_pending_items: 1000
+    auto_approve_verified_brands: true
+    review_sla_hours: 24
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUDIT LOGGING
+# ═══════════════════════════════════════════════════════════════════════════════
+audit:
+  # Events to log
+  log_events:
+    - integration.grant
+    - integration.refresh
+    - integration.webhook
+    - integration.action
+    - integration.reject
+    - integration.revoke
+    - security.rate_limited
+    - security.branding_403
+    - security.webhook_quota_exceeded
+    - security.unauthorized_scope
+    - security.hmac_failed
+    - publishing.draft_created
+    - publishing.moderation_flagged
+    - publishing.approved
+    - publishing.rejected
+  
+  # PII redaction in logs
+  pii_redaction: true
+  
+  # Retention policy (days)
+  retention_days:
+    security_events: 90
+    integration_events: 365
+    audit_trail: 2555      # 7 years (compliance)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FEATURE FLAGS
+# ═══════════════════════════════════════════════════════════════════════════════
+feature_flags:
+  market_feed: true
+  dashboards: true
+  uom_engine: true
+  mrp_module: true
+  integrations: true
+  analytics: true
+  webhooks: true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FRAUD & ABUSE PREVENTION
+# ═══════════════════════════════════════════════════════════════════════════════
+fraud_prevention:
+  # Duplicate detection
+  detect_duplicate_products: true
+  image_similarity_threshold: 0.95
+  
+  # Spam detection
+  spam_detection:
+    enabled: true
+    ml_model: "spam_classifier_v2"
+    confidence_threshold: 0.85
+  
+  # Rate anomaly detection
+  anomaly_detection:
+    enabled: true
+    spike_threshold: 5.0    # 5x normal rate
+    window_minutes: 10
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# COMPLIANCE
+# ═══════════════════════════════════════════════════════════════════════════════
+compliance:
+  gdpr:
+    enabled: true
+    data_retention_days: 730
+    right_to_deletion: true
+  
+  ccpa:
+    enabled: true
+    do_not_sell: true
+  
+  pci:
+    enabled: true
+    no_raw_card_data: true
+  
+  dpa_required_for: ["verified", "starter", "pro", "enterprise"]
+  
+  tos_version: "2025-10-16"
+  privacy_policy_version: "2025-10-16"

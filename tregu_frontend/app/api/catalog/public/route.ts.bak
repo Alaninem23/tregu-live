@@ -1,0 +1,10 @@
+export async function GET(){
+  // TODO: back this with your DB. For now return a small demo set.
+  const items = [
+    { id:"1", business:"Bluebird Coffee", title:"Seasonal Espresso Blend", price:"$14.00", image:"https://picsum.photos/seed/tregu1/600/400" },
+    { id:"2", business:"Oak & Iron", title:"Leather Desk Mat", price:"$59.00", image:"https://picsum.photos/seed/tregu2/600/400" },
+    { id:"3", business:"River Outfitters", title:"Insulated Bottle 22oz", price:"$29.00", image:"https://picsum.photos/seed/tregu3/600/400" }
+  ];
+  // Backup file - not used by Next.js routing. Renamed to avoid build conflicts.
+  return new Response(JSON.stringify({ items }),{ status:200, headers:{ "Content-Type":"application/json", "Cache-Control":"no-store" }});
+}

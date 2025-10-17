@@ -1,0 +1,132 @@
+﻿'use client'
+
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+
+const heroSrc = '/Tregu%20Image.png'
+
+type Listing = {
+  id: string
+  seller_name: string
+  title: string
+  body: string
+  logo_url?: string
+}
+
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
+export default function MarketPage() {
+  const router = useRouter()
+  const sp = useSearchParams()
+  const [q, setQ] = useState(sp.get('q') || '')
+  const [rows, setRows] = useState<Listing[]>([])
+  const [loading, setLoading] = useState(false)
+
+  async function load() {
+    setLoading(true)
+    try {
+      const qs = q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ''
+      const res = await fetch(`${API}/search${qs}`, { cache: 'no-store' })
+      setRows(res.ok ? (await res.json()) as Listing[] : [])
+    } catch {
+      setRows([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { load() }, [])
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const next = q.trim() ? `/market?q=${encodeURIComponent(q.trim())}` : '/market'
+    router.push(next)
+    load()
+  }
+
+  return (
+    <div className="space-y-8">
+      <div className="rounded-3xl ring-1 ring-slate-200 bg-white p-5 md:p-6">
+        <div className="grid md:grid-cols-[1fr,360px] gap-6 items-center">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-semibold">Market</h1>
+            <p className="text-slate-600 mt-2">
+              Browse business catalogs and discover sellers. Upload a logo that appears on the Market and links to your catalog.
+            </p>
+            <form onSubmit={onSubmit} className="mt-4 max-w-xl">
+              <div className="flex rounded-2xl bg-white shadow ring-1 ring-slate-200">
+                <input
+                  value={q}
+                  onChange={(e)=>setQ(e.target.value)}
+                  placeholder="Search sellers, products, or pods"
+                  className="flex-1 rounded-l-2xl px-4 py-2.5 outline-none"
+                />
+                <button
+                  className="rounded-r-2xl px-5 py-2.5 text-white bg-gradient-to-r from-indigo-700 to-slate-700 hover:from-indigo-800 hover:to-slate-800 transition"
+                >
+                  Search
+                </button>
+              </div>
+            </form>
+            <div className="mt-4 flex gap-2">
+              <Link href="/onboard?mode=business" className="btn btn-primary">Become a Seller</Link>
+              <Link href="/pods" className="btn">Explore Pods</Link>
+            </div>
+          </div>
+
+          <div className="relative h-[140px] md:h-[180px]">
+            <div className="absolute inset-0 rounded-2xl overflow-hidden ring-1 ring-slate-200 bg-white">
+              <Image
+                src={heroSrc}
+                alt="Tregu Market"
+                fill
+                sizes="40vw"
+                className="object-cover"
+                priority
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="text-slate-700">
+          {loading ? 'Loadingâ€¦' : rows.length ? `${rows.length} results` : 'No results yet'}
+        </div>
+        <div />
+      </div>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {((typeof rows !== 'undefined' && Array.isArray(rows)) ? rows : []).map((r) => (
+          <Link
+            key={r.id}
+            href={`/seller/${encodeURIComponent((r && (r as any).seller_name) || "seller")}?listing=${encodeURIComponent((r && (r as any).id) || "")}`}
+            className="rounded-2xl border border-slate-200 bg-white p-4 hover:shadow transition"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl overflow-hidden ring-1 ring-slate-200 bg-white flex items-center justify-center">
+                {r.logo_url
+                  ? <img src={r.logo_url} alt={`${r.seller_name} logo`} className="h-full w-full object-cover" />
+                  : <span className="text-brand font-semibold">{r.seller_name.charAt(0).toUpperCase()}</span>}
+              </div>
+              <div className="min-w-0">
+                <div className="font-medium text-slate-900 line-clamp-1">{r.seller_name}</div>
+                <div className="text-sm text-slate-500 line-clamp-1">{r.title}</div>
+              </div>
+            </div>
+            <div className="mt-3 text-sm text-slate-600 line-clamp-3">{r.body}</div>
+          </Link>
+        ))}
+
+        {!loading && rows.length === 0 && (
+          <div className="col-span-full rounded-2xl border border-slate-200 bg-white p-6 text-center text-slate-600">
+            Nothing yet. Try a different search or check back soon.
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+

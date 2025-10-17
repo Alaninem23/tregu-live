@@ -1,0 +1,52 @@
+﻿'use client'
+import { useRef, useState } from 'react'
+
+const API = process.env.NEXT_PUBLIC_API_URL || ''
+
+export default function AvatarUploader({ label='Profile photo', name='avatar', initialUrl='', kind='user' }:{ label?:string; name?:string; initialUrl?:string; kind?:'user'|'business' }){
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [url, setUrl] = useState<string>(initialUrl)
+  const [busy, setBusy] = useState(false)
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return
+    setBusy(true)
+    try {
+      const objectUrl = URL.createObjectURL(f)
+      setUrl(objectUrl)
+      const fd = new FormData()
+      fd.append('file', f)
+      fd.append('kind', kind)
+      if (API) {
+        try {
+          const res = await fetch(`${API}/files/upload`, { method: 'POST', body: fd })
+          if (res.ok) {
+            const j = await res.json()
+            if (j.url) setUrl(j.url)
+          }
+        } catch {}
+      }
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof window !== 'undefined') localStorage.setItem(`tregu:${kind}:${name}`, String(reader.result))
+      }
+      reader.readAsDataURL(f)
+    } finally { setBusy(false) }
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="text-sm font-medium">{label}</div>
+      <div className="flex items-center gap-3">
+        <div className="h-16 w-16 overflow-hidden rounded-full bg-slate-200">
+          {url ? <img src={url} alt="avatar" className="h-full w-full object-cover"/> : null}
+        </div>
+        <button type="button" className="rounded-xl border px-3 py-2" onClick={() => inputRef.current?.click()} disabled={busy}>
+          {busy? 'Uploading…' : 'Upload'}
+        </button>
+        <input ref={inputRef} type="file" accept="image/*" onChange={onPick} hidden />
+      </div>
+    </div>
+  )
+}

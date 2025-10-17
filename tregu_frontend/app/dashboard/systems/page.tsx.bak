@@ -1,0 +1,22 @@
+'use client'
+import IntegrationCard from '../../../components/IntegrationCard'
+import FeatureGate from '../../../components/FeatureGate'
+
+export default function SystemsPage(){
+  return (
+    <main className="space-y-6 p-6" style={{ background: 'linear-gradient(180deg,#f6f9ff,transparent)' }}>
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold">Systems & Integrations</h1>
+        <p className="text-slate-600">Plug external systems into Tregu. Configure webhooks and customize flows.</p>
+      </header>
+      <FeatureGate feature="integrations">
+        <div className="grid gap-4 md:grid-cols-2">
+          <IntegrationCard title="Shopify" description="Sync products & orders" />
+          <IntegrationCard title="Square" description="POS & inventory" />
+          <IntegrationCard title="WooCommerce" description="WordPress store sync" />
+          <IntegrationCard title="Webhooks" description="Send events to your endpoints" />
+        </div>
+      </FeatureGate>
+    </main>
+  )
+}

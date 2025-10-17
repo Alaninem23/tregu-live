@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  api_blue:
+    image: ghcr.io/alaninem/tregu/api:1.0.0
+    container_name: api_blue
+    env_file: [/srv/tregu/env/prod.api.env]
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
+    ports:
+      - "8001:8000"
+    networks: [tregu_net]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:${PORT:-8000}/healthz"]
+      interval: 10s
+      timeout: 2s
+      retries: 6
+      start_period: 20s
+    restart: unless-stopped
+
+  web_blue:
+    image: ghcr.io/alaninem/tregu/web:1.0.0
+    container_name: web_blue
+    env_file: [/srv/tregu/env/prod.web.env]
+    ports:
+      - "3001:3000"
+    depends_on:
+      api_blue:
+        condition: service_healthy
+    networks: [tregu_net]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:${PORT:-3000}/api/healthz"]
+      interval: 10s
+      timeout: 2s
+      retries: 6
+      start_period: 20s
+    restart: unless-stopped
+
+networks:
+  tregu_net:
+    external: true

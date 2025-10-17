@@ -1,0 +1,26 @@
+YOUR_DOMAIN {
+	encode zstd gzip
+
+	# Forward all /api to backend
+	handle_path /api/* {
+		reverse_proxy backend:8003
+	}
+
+	# Everything else to frontend
+	handle {
+		reverse_proxy frontend:3000
+	}
+
+	# Security headers
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Cross-Origin-Opener-Policy "same-origin"
+	}
+}
+
+:80 {
+	respond "Use HTTPS" 301
+}
